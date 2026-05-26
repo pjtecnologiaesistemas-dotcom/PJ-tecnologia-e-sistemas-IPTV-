@@ -1113,10 +1113,84 @@ let allChannels = [];
 let currentChannel = null;
 let currentPlayer = null;
 
+// ══════════════════════════════════════
+//  INDEXEDDB — armazenamento sem limite
+// ══════════════════════════════════════
+const DB_NAME = 'pjplay_db';
+const DB_VERSION = 1;
+const STORE_CHANNELS = 'channels';
+const STORE_SETTINGS = 'settings';
+let db = null;
+
+function openDB() {
+  return new Promise(function(resolve, reject) {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE_CHANNELS)) {
+        d.createObjectStore(STORE_CHANNELS, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!d.objectStoreNames.contains(STORE_SETTINGS)) {
+        d.createObjectStore(STORE_SETTINGS);
+      }
+    };
+    req.onsuccess = function(e) { db = e.target.result; resolve(db); };
+    req.onerror = function() { reject(req.error); };
+  });
+}
+
+function dbSaveChannels(channels) {
+  return new Promise(function(resolve, reject) {
+    if (!db) return resolve();
+    const tx = db.transaction(STORE_CHANNELS, 'readwrite');
+    const store = tx.objectStore(STORE_CHANNELS);
+    store.clear();
+    // Salva em lotes de 500 para não travar
+    let i = 0;
+    function putNext() {
+      if (i >= channels.length) return;
+      const batch = channels.slice(i, i + 500);
+      batch.forEach(function(ch) { store.put(ch); });
+      i += 500;
+      setTimeout(putNext, 0);
+    }
+    putNext();
+    tx.oncomplete = function() { resolve(); };
+    tx.onerror = function() { reject(tx.error); };
+  });
+}
+
+function dbLoadChannels() {
+  return new Promise(function(resolve, reject) {
+    if (!db) return resolve([]);
+    const tx = db.transaction(STORE_CHANNELS, 'readonly');
+    const store = tx.objectStore(STORE_CHANNELS);
+    const req = store.getAll();
+    req.onsuccess = function() { resolve(req.result || []); };
+    req.onerror = function() { resolve([]); };
+  });
+}
+
+function dbSaveSetting(key, value) {
+  if (!db) { try { localStorage.setItem(key, value); } catch(e){} return; }
+  const tx = db.transaction(STORE_SETTINGS, 'readwrite');
+  tx.objectStore(STORE_SETTINGS).put(value, key);
+}
+
+function dbLoadSetting(key) {
+  return new Promise(function(resolve) {
+    if (!db) { resolve(localStorage.getItem(key) || ''); return; }
+    const tx = db.transaction(STORE_SETTINGS, 'readonly');
+    const req = tx.objectStore(STORE_SETTINGS).get(key);
+    req.onsuccess = function() { resolve(req.result || ''); };
+    req.onerror = function() { resolve(''); };
+  });
+}
+
 // ── NAV ──
 function showSection(id, tab) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('sec-' + id).classList.add('active');
   if (tab) tab.classList.add('active');
 }
@@ -1164,7 +1238,7 @@ function parseM3U(text) {
 //  LOAD METHODS
 // ══════════════════════════════════════
 
-// 1. Paste
+// 1. Colar conteúdo
 function loadFromPaste() {
   const text = document.getElementById('m3uPasteArea').value.trim();
   if (!text) { showM3UStatus('error', '❌ Cole o conteúdo da lista no campo acima.'); return; }
@@ -1175,24 +1249,24 @@ function loadFromPaste() {
   processM3UText(text);
 }
 
-// 2. File
+// 2. Arquivo local
 document.getElementById('m3uFileInput').addEventListener('change', function() {
   const file = this.files[0];
   if (!file) return;
   document.getElementById('fileNameLabel').textContent = file.name;
   showM3UStatus('loading', '⏳ Lendo arquivo...');
   const reader = new FileReader();
-  reader.onload = e => processM3UText(e.target.result);
-  reader.onerror = () => showM3UStatus('error', '❌ Erro ao ler o arquivo.');
-  reader.readAsText(file);
+  reader.onload = function(e) { processM3UText(e.target.result); };
+  reader.onerror = function() { showM3UStatus('error', '❌ Erro ao ler o arquivo.'); };
+  reader.readAsText(file, 'utf-8');
 });
 
-// 3. URL with multi-proxy fallback
+// 3. URL com multi-proxy
 const PROXIES = [
-  url => url,
-  url => 'https://corsproxy.io/?' + encodeURIComponent(url),
-  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  url => 'https://thingproxy.freeboard.io/fetch/' + url,
+  function(url) { return url; },
+  function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
+  function(url) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); },
+  function(url) { return 'https://thingproxy.freeboard.io/fetch/' + url; },
 ];
 
 async function handleLoadBtn() {
@@ -1203,7 +1277,7 @@ async function handleLoadBtn() {
     const proxied = PROXIES[i](url);
     showM3UStatus('loading', '⏳ Tentativa ' + (i+1) + ' de ' + PROXIES.length + '...');
     try {
-      const res = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
+      const res = await fetch(proxied, { signal: AbortSignal.timeout(15000) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const text = await res.text();
       if (text.includes('#EXTINF') || text.includes('#EXTM3U')) {
@@ -1222,24 +1296,29 @@ async function handleLoadBtn() {
   }
 }
 
-// ── Process text ──
+// ── Processar texto M3U ──
 function processM3UText(text) {
-  const channels = parseM3U(text);
-  if (channels.length === 0) {
-    showM3UStatus('error', '❌ Nenhum canal encontrado. Verifique se a lista está completa.');
-    return;
-  }
-  allChannels = channels;
-  try { localStorage.setItem('pjplay_channels', JSON.stringify(channels.slice(0, 500))); } catch(e){}
-  applyChannelsToUI();
-  showM3UStatus('ok', '✅ ' + channels.length + ' canais carregados com sucesso!');
-  const grps = [...new Set(channels.map(c => c.group))];
-  const el = document.getElementById('channelsLoaded');
-  if (el) el.style.display = 'block';
-  const info = document.getElementById('channelsInfo');
-  if (info) info.innerHTML = '<strong style="font-size:1.1rem;">' + channels.length + '</strong> canais em <strong>' + grps.length + '</strong> grupos · ' +
-    grps.slice(0,6).map(g => '<span style="background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.2);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;display:inline-block;">' + escHtml(g) + '</span>').join('') +
-    (grps.length > 6 ? '<span style="font-size:.75rem;color:var(--text-dim);"> +' + (grps.length-6) + ' mais</span>' : '');
+  showM3UStatus('loading', '⏳ Processando lista...');
+  setTimeout(function() {
+    const channels = parseM3U(text);
+    if (channels.length === 0) {
+      showM3UStatus('error', '❌ Nenhum canal encontrado. Verifique se a lista está completa.');
+      return;
+    }
+    allChannels = channels;
+    // Salva no IndexedDB (sem limite de tamanho)
+    dbSaveChannels(channels).catch(function(){});
+    applyChannelsToUI();
+    const grps = [...new Set(channels.map(function(c){ return c.group; }))];
+    const el = document.getElementById('channelsLoaded');
+    if (el) el.style.display = 'block';
+    const info = document.getElementById('channelsInfo');
+    if (info) info.innerHTML =
+      '<strong style="font-size:1.1rem;">' + channels.length + '</strong> canais em <strong>' + grps.length + '</strong> grupos · ' +
+      grps.slice(0,6).map(function(g){ return '<span style="background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.2);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;display:inline-block;">' + escHtml(g) + '</span>'; }).join('') +
+      (grps.length > 6 ? '<span style="font-size:.75rem;color:var(--text-dim);"> +' + (grps.length-6) + ' mais</span>' : '');
+    showM3UStatus('ok', '✅ ' + channels.length + ' canais carregados com sucesso! (salvos localmente)');
+  }, 50);
 }
 
 // ══════════════════════════════════════
@@ -1247,36 +1326,62 @@ function processM3UText(text) {
 // ══════════════════════════════════════
 function applyChannelsToUI() {
   if (!allChannels.length) return;
-  const groups = ['Todos', ...new Set(allChannels.map(c => c.group))].slice(0, 14);
+  const groups = ['Todos', ...new Set(allChannels.map(function(c){ return c.group; }))].slice(0, 18);
   const catTabsEl = document.querySelector('.cat-tabs');
   catTabsEl.innerHTML = groups.map(function(g, i) {
-    return '<div class="cat-tab' + (i===0?' active':'') + '" onclick="filterChannels(this,\'' + g.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' + (g.length > 10 ? g.slice(0,10)+'…' : g) + '</div>';
+    const safe = g.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const label = g.length > 12 ? g.slice(0,12)+'…' : g;
+    return '<div class="cat-tab' + (i===0?' active':'') + '" onclick="filterChannels(this,\'' + safe + '\')">' + label + '</div>';
   }).join('');
   renderChannelList(allChannels);
   const statVal = document.querySelector('.stat-info .val');
   if (statVal) statVal.textContent = allChannels.length;
 }
 
+// Renderização em lotes — evita travar com listas grandes
 function renderChannelList(channels) {
   const listEl = document.querySelector('.channel-list');
+  listEl.innerHTML = '';
   if (!channels.length) {
     listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:.8rem;">Nenhum canal encontrado</div>';
     return;
   }
-  listEl.innerHTML = channels.slice(0, 300).map(function(ch, i) {
-    const ico = getChannelIcon(ch.group);
-    const logoHtml = ch.logo
-      ? '<img src="' + ch.logo + '" onerror="this.parentNode.innerHTML=\'' + ico + '\'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">'
-      : ico;
-    return '<div class="ch-item" onclick="selectChannel(this,\'' + esc(ch.name) + '\',\'' + esc(ch.url) + '\',\'' + esc(ch.group) + '\')" data-url="' + esc(ch.url) + '">'
-      + '<div class="ch-num">' + String(i+1).padStart(2,'0') + '</div>'
-      + '<div class="ch-logo">' + logoHtml + '</div>'
-      + '<div class="ch-details"><div class="ch-name">' + escHtml(ch.name) + '</div><div class="ch-prog">' + escHtml(ch.group) + '</div></div>'
-      + '<div class="ch-live"></div>'
-      + '</div>';
-  }).join('');
-  const first = listEl.querySelector('.ch-item');
-  if (first) first.click();
+  const BATCH = 100;
+  let offset = 0;
+  function renderBatch() {
+    const frag = document.createDocumentFragment();
+    const slice = channels.slice(offset, offset + BATCH);
+    slice.forEach(function(ch, idx) {
+      const i = offset + idx;
+      const el = document.createElement('div');
+      el.className = 'ch-item';
+      const ico = getChannelIcon(ch.group);
+      const logoHtml = ch.logo
+        ? '<img src="' + ch.logo + '" onerror="this.style.display=\'none\';this.insertAdjacentText(\'afterend\',\'' + ico + '\')" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">'
+        : ico;
+      el.innerHTML =
+        '<div class="ch-num">' + String(i+1).padStart(2,'0') + '</div>'
+        + '<div class="ch-logo">' + logoHtml + '</div>'
+        + '<div class="ch-details"><div class="ch-name">' + escHtml(ch.name) + '</div><div class="ch-prog">' + escHtml(ch.group) + '</div></div>'
+        + '<div class="ch-live"></div>';
+      // Usar data attributes para evitar injeção via onclick inline
+      el.dataset.chName = ch.name;
+      el.dataset.chUrl = ch.url;
+      el.dataset.chGroup = ch.group;
+      el.addEventListener('click', function() { selectChannelEl(this); });
+      frag.appendChild(el);
+    });
+    listEl.appendChild(frag);
+    offset += BATCH;
+    if (offset < channels.length) {
+      setTimeout(renderBatch, 0);
+    } else {
+      // Auto-seleciona o primeiro canal
+      const first = listEl.querySelector('.ch-item');
+      if (first) first.click();
+    }
+  }
+  renderBatch();
 }
 
 function filterChannels(tabEl, group) {
@@ -1294,12 +1399,24 @@ document.querySelector('.sidebar-search input').addEventListener('input', functi
 // ══════════════════════════════════════
 //  PLAYER
 // ══════════════════════════════════════
+function selectChannelEl(el) {
+  document.querySelectorAll('.ch-item').forEach(function(i){ i.classList.remove('active'); });
+  el.classList.add('active');
+  const name = el.dataset.chName || '';
+  const url = el.dataset.chUrl || '';
+  const group = el.dataset.chGroup || '';
+  document.getElementById('playerChName').textContent = name;
+  document.getElementById('playerProg').textContent = (group || '') + ' • Ao Vivo';
+  playStream(url, name);
+}
+
+// Mantém compatibilidade com canais estáticos do HTML que usam onclick antigo
 function selectChannel(el, name, url, group) {
   document.querySelectorAll('.ch-item').forEach(function(i){ i.classList.remove('active'); });
   el.classList.add('active');
   document.getElementById('playerChName').textContent = name;
   document.getElementById('playerProg').textContent = (group || '') + ' • Ao Vivo';
-  playStream(url, name);
+  if (url) playStream(url, name);
 }
 
 function playStream(url, name) {
@@ -1311,15 +1428,18 @@ function playStream(url, name) {
   video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
   video.controls = true;
   video.autoplay = true;
-  const isHLS = /\.m3u8?(\?|$)/i.test(url) || url.includes('type=m3u') || url.includes('output=mpegts');
+  video.playsInline = true;
+  const isHLS = /\.m3u8?(\?|$)/i.test(url) || url.includes('type=m3u') || url.includes('output=mpegts') || url.includes('/live/');
   if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-    const hls = new Hls({ enableWorker: false, lowLatencyMode: true });
+    const hls = new Hls({ enableWorker: false, lowLatencyMode: true, maxBufferLength: 30 });
     hls.loadSource(url);
     hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function(){ video.play().catch(function(){}); });
     hls.on(Hls.Events.ERROR, function(_, data){ if (data.fatal) showPlayerError(screen, name, url); });
     currentPlayer = hls;
   } else {
     video.src = url;
+    video.play().catch(function(){});
   }
   video.onerror = function(){ showPlayerError(screen, name, url); };
   screen.querySelector('.player-logo-bg').style.display = 'none';
@@ -1332,12 +1452,14 @@ function showPlayerError(screen, name, url) {
   const d = document.createElement('div');
   d.className = 'player-err';
   d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,50,50,.12);border:1px solid rgba(255,80,80,.25);border-radius:8px;padding:10px 14px;font-size:.74rem;color:#ff8888;z-index:20;line-height:1.6;';
-  d.innerHTML = '⚠️ Stream offline ou bloqueado: <strong>' + escHtml(name) + '</strong><br><a href="' + url + '" target="_blank" style="color:var(--cyan);">Abrir stream diretamente ↗</a>';
+  const safeUrl = escHtml(url || '');
+  d.innerHTML = '⚠️ Stream offline ou bloqueado: <strong>' + escHtml(name) + '</strong>';
+  if (url) d.innerHTML += '<br><a href="' + safeUrl + '" target="_blank" style="color:var(--cyan);">Abrir stream diretamente ↗</a>';
   screen.appendChild(d);
 }
 
 // ══════════════════════════════════════
-//  SETTINGS
+//  SETTINGS — botões corrigidos
 // ══════════════════════════════════════
 function showM3UStatus(type, msg) {
   const el = document.getElementById('m3uStatus');
@@ -1349,29 +1471,34 @@ function showM3UStatus(type, msg) {
   el.style.color = type === 'ok' ? 'var(--cyan)' : type === 'error' ? '#ff8888' : 'var(--accent)';
 }
 
+// Botão Salvar Configurações — corrigido
 document.querySelector('.btn-save').addEventListener('click', function() {
   const urlEl = document.querySelector('.setting-input[data-key="m3u"]');
-  if (urlEl) localStorage.setItem('pjplay_m3u', urlEl.value.trim());
+  const url = urlEl ? urlEl.value.trim() : '';
+  dbSaveSetting('pjplay_m3u', url);
   showM3UStatus('ok', '✅ Configurações salvas!');
+  setTimeout(function(){ document.getElementById('m3uStatus').style.display = 'none'; }, 3000);
 });
 
-function loadSettings() {
-  const url = localStorage.getItem('pjplay_m3u') || '';
+// ── Carregar configurações e canais salvos ──
+async function loadSettings() {
+  const url = await dbLoadSetting('pjplay_m3u');
   const urlEl = document.querySelector('.setting-input[data-key="m3u"]');
   if (urlEl && url) urlEl.value = url;
-  try {
-    const cached = localStorage.getItem('pjplay_channels');
-    if (cached) {
-      const ch = JSON.parse(cached);
-      if (ch && ch.length) { allChannels = ch; applyChannelsToUI(); }
-    }
-  } catch(e){}
+  // Carrega canais do IndexedDB
+  const savedChannels = await dbLoadChannels();
+  if (savedChannels && savedChannels.length) {
+    allChannels = savedChannels;
+    applyChannelsToUI();
+    showM3UStatus('ok', '✅ ' + savedChannels.length + ' canais restaurados do armazenamento local.');
+    setTimeout(function(){ document.getElementById('m3uStatus').style.display = 'none'; }, 3000);
+  }
 }
 
-// ── Load HLS.js ──
+// ── Carrega HLS.js ──
 (function(){
   const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
+  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
   document.head.appendChild(s);
 })();
 
@@ -1465,7 +1592,7 @@ catchups.forEach(function(c) {
 });
 
 // ── Init ──
-loadSettings();
+openDB().then(loadSettings).catch(function(){ loadSettings(); });
 </script>
 </body>
 </html>
