@@ -1373,67 +1373,70 @@ function selectChannel(el, name, prog, group) {
 
 function tocarStream(url, name) {
   var screen = document.querySelector('.player-screen');
-  // Limpa tudo anterior
   if (_hls) { try { _hls.destroy(); } catch(e){} _hls = null; }
   [].forEach.call(screen.querySelectorAll('video,iframe,.player-err,.player-sem-url'), function(e){ e.remove(); });
   var logo = screen.querySelector('.player-logo-bg');
   if (logo) logo.style.display = 'none';
 
-  var isHLS = /\.m3u8?(\?|$)/i.test(url)
-    || url.indexOf('type=m3u') >= 0
-    || url.indexOf('output=mpegts') >= 0
-    || url.indexOf('/live/') >= 0
-    || url.indexOf('/hls/') >= 0;
+  // HLS real = .m3u8 ou /hls/ (NÃO output=mpegts — esse é TS direto)
+  var isHLS = /\.m3u8?(\?|$)/i.test(url) || url.indexOf('/hls/') >= 0;
+  // MPEG-TS direto (Xtream Codes: /live/user/pass/ID ou output=ts/mpegts)
+  var isTS = !isHLS && (
+    url.indexOf('/live/') >= 0 ||
+    url.indexOf('output=mpegts') >= 0 ||
+    url.indexOf('output=ts') >= 0 ||
+    /\/\d+$/.test(url.split('?')[0])
+  );
 
-  function iniciarVideo() {
+  function tentarNativo() {
     var v = document.createElement('video');
     v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
     v.controls = true; v.autoplay = true; v.playsInline = true;
     screen.appendChild(v);
-
-    if (isHLS && window.Hls && window.Hls.isSupported()) {
-      var h = new window.Hls({
-        enableWorker: false,
-        lowLatencyMode: true,
-        maxBufferLength: 30,
-        xhrSetup: function(xhr) { xhr.withCredentials = false; }
-      });
-      h.loadSource(url);
-      h.attachMedia(v);
-      h.on(window.Hls.Events.MANIFEST_PARSED, function(){ v.play().catch(function(){}); });
-      h.on(window.Hls.Events.ERROR, function(ev, d){
-        if (d.fatal) {
-          h.destroy();
-          v.remove();
-          erroPlayer(screen, name, url);
-        }
-      });
-      _hls = h;
-    } else if (isHLS && document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari nativo HLS
-      v.src = url;
-      v.play().catch(function(){ erroPlayer(screen, name, url); });
-    } else if (!isHLS) {
-      v.src = url;
-      v.play().catch(function(){});
-    } else {
-      // HLS.js não disponível e navegador não suporta nativamente
-      v.remove();
-      erroPlayer(screen, name, url);
-    }
-    v.onerror = function(){ erroPlayer(screen, name, url); };
+    v.src = url;
+    v.play().catch(function(){});
+    v.onerror = function(){ v.remove(); erroPlayer(screen, name, url); };
+    return v;
   }
 
-  if (isHLS && !_hlsReady) {
-    // HLS.js ainda não carregou — aguarda
-    _hlsPendente = { url: url, name: name };
-    var d = document.createElement('div');
-    d.className = 'player-err';
-    d.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:.85rem;letter-spacing:1px;z-index:15;';
-    d.textContent = '⏳ Carregando player...';
-    screen.appendChild(d);
+  if (isHLS) {
+    if (!_hlsReady) {
+      _hlsPendente = { url: url, name: name };
+      var d = document.createElement('div');
+      d.className = 'player-err';
+      d.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:.85rem;z-index:15;';
+      d.textContent = '⏳ Carregando player...';
+      screen.appendChild(d);
+      return;
+    }
+    if (window.Hls && window.Hls.isSupported()) {
+      var v2 = document.createElement('video');
+      v2.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
+      v2.controls = true; v2.autoplay = true; v2.playsInline = true;
+      screen.appendChild(v2);
+      var h = new window.Hls({ enableWorker:false, lowLatencyMode:true, maxBufferLength:30 });
+      h.loadSource(url); h.attachMedia(v2);
+      h.on(window.Hls.Events.MANIFEST_PARSED, function(){ v2.play().catch(function(){}); });
+      h.on(window.Hls.Events.ERROR, function(ev,d){ if(d.fatal){ h.destroy(); v2.remove(); erroPlayer(screen,name,url); }});
+      _hls = h;
+      v2.onerror = function(){ erroPlayer(screen,name,url); };
+    } else {
+      tentarNativo();
+    }
+  } else if (isTS) {
+    // MPEG-TS: tenta nativo primeiro; muitos navegadores aceitam
+    // Se falhar, mostra link para abrir externamente
+    var v3 = tentarNativo();
+    // Timeout: se em 6s não iniciou, mostra opções externas
+    var _tsTimer = setTimeout(function(){
+      if (v3 && (v3.readyState === 0 || v3.error)) {
+        v3.remove();
+        erroPlayer(screen, name, url);
+      }
+    }, 6000);
+    v3.addEventListener('playing', function(){ clearTimeout(_tsTimer); });
   } else {
-    iniciarVideo();
+    tentarNativo();
   }
 }
 
@@ -1443,9 +1446,17 @@ function erroPlayer(screen, name, url) {
   if (logo) logo.style.display = '';
   var d = document.createElement('div');
   d.className = 'player-err';
-  d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,50,50,.12);border:1px solid rgba(255,80,80,.25);border-radius:8px;padding:10px 14px;font-size:.74rem;color:#ff8888;z-index:20;line-height:1.6;';
-  d.innerHTML = 'Stream offline: <strong>' + hesc(name||'') + '</strong>';
-  if (url) d.innerHTML += '<br><a href="' + aesc(url) + '" target="_blank" style="color:var(--cyan)">Abrir direto</a>';
+  d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(30,30,60,.92);border:1px solid rgba(255,80,80,.3);border-radius:10px;padding:14px 16px;font-size:.78rem;color:#ff9999;z-index:20;line-height:1.8;';
+  d.innerHTML = '⚠️ Stream não pôde ser reproduzido no navegador: <strong style="color:#fff">' + hesc(name||'') + '</strong>';
+  if (url) {
+    // VLC link (vlc://)
+    var vlcUrl = url.replace(/^https?/, 'vlc');
+    d.innerHTML += '<br><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">'
+      + '<a href="' + aesc(url) + '" target="_blank" style="background:rgba(0,200,248,.15);border:1px solid rgba(0,200,248,.3);color:var(--cyan);padding:5px 12px;border-radius:6px;text-decoration:none;font-size:.75rem;">🔗 Abrir no navegador</a>'
+      + '<a href="' + aesc(vlcUrl) + '" style="background:rgba(240,120,0,.15);border:1px solid rgba(240,120,0,.3);color:#f0a000;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:.75rem;">📺 Abrir no VLC</a>'
+      + '</div>'
+      + '<div style="margin-top:6px;font-size:.7rem;color:rgba(200,216,240,.4);">Dica: streams IPTV funcionam melhor no VLC ou player externo</div>';
+  }
   screen.appendChild(d);
 }
 
@@ -1612,17 +1623,26 @@ for(var i=0;i<catchups.length;i++){var c=catchups[i];cg.innerHTML+='<div class="
 })();
 
 // INIT
-carregarConf('pjplay_m3u', function(url) {
+var URL_PADRAO = 'http://mtxmegga.shop/get.php?username=56884875&password=43853414&type=m3u_plus&output=mpegts';
+
+carregarConf('pjplay_m3u', function(urlSalva) {
+  var urlFinal = urlSalva || URL_PADRAO;
   var el = document.querySelector('.setting-input[data-key="m3u"]');
-  if (el && url) el.value = url;
-});
-carregarDB(function(saved) {
-  if (!saved.length) return;
-  _ch = saved; _fil = saved.slice();
-  buildUI();
-  status('ok', saved.length + ' canais restaurados.');
-  setTimeout(function(){ var el=document.getElementById('m3uStatus'); if(el) el.style.display='none'; }, 2500);
-  infoCanais(saved);
+  if (el) el.value = urlFinal;
+  if (!urlSalva) salvarConf('pjplay_m3u', urlFinal);
+
+  carregarDB(function(saved) {
+    if (saved.length) {
+      _ch = saved; _fil = saved.slice();
+      buildUI();
+      infoCanais(saved);
+      status('ok', saved.length + ' canais restaurados. Atualizando lista...');
+    } else {
+      status('loading', 'Carregando lista de canais...');
+    }
+    // Sempre busca lista atualizada
+    tentarProxy(urlFinal, 0);
+  });
 });
 </script>
 </body>
