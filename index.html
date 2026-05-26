@@ -1106,10 +1106,27 @@ body::after{
 </div><!-- /main -->
 </div><!-- /app -->
 <script>
-// PJ PLAY v2 - script limpo
-var _ch = [];       // todos canais
-var _fil = [];      // canais filtrados
-var _hls = null;    // player HLS atual
+// PJ PLAY v3 - corrigido definitivamente
+var _ch = [];
+var _fil = [];
+var _hls = null;
+var _hlsReady = false;  // true quando HLS.js terminou de carregar
+var _hlsPendente = null; // { url, name, screen } aguardando HLS carregar
+
+// HELPERS — definidos primeiro para uso imediato
+function hesc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function aesc(s){ return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function iconeCh(g){
+  g=(g||'').toLowerCase();
+  if(g.indexOf('sport')>=0||g.indexOf('esport')>=0||g.indexOf('futebol')>=0) return '⚽';
+  if(g.indexOf('news')>=0||g.indexOf('notic')>=0) return '📰';
+  if(g.indexOf('kids')>=0||g.indexOf('infan')>=0) return '🧒';
+  if(g.indexOf('film')>=0||g.indexOf('movie')>=0||g.indexOf('cinema')>=0) return '🎬';
+  if(g.indexOf('seri')>=0) return '📺';
+  if(g.indexOf('music')>=0||g.indexOf('musica')>=0) return '🎵';
+  if(g.indexOf('doc')>=0) return '🌍';
+  return '📡';
+}
 
 // NAV
 function showSection(id, t) {
@@ -1356,23 +1373,68 @@ function selectChannel(el, name, prog, group) {
 
 function tocarStream(url, name) {
   var screen = document.querySelector('.player-screen');
+  // Limpa tudo anterior
   if (_hls) { try { _hls.destroy(); } catch(e){} _hls = null; }
-  [].forEach.call(screen.querySelectorAll('video,.player-err'), function(e){ e.remove(); });
+  [].forEach.call(screen.querySelectorAll('video,iframe,.player-err,.player-sem-url'), function(e){ e.remove(); });
   var logo = screen.querySelector('.player-logo-bg');
   if (logo) logo.style.display = 'none';
-  var v = document.createElement('video');
-  v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
-  v.controls = true; v.autoplay = true; v.playsInline = true;
-  screen.appendChild(v);
-  var isHLS = /\.m3u8?(\?|$)/i.test(url) || url.indexOf('type=m3u')>=0 || url.indexOf('output=mpegts')>=0 || url.indexOf('/live/')>=0;
-  if (isHLS && window.Hls && window.Hls.isSupported()) {
-    var h = new window.Hls({ enableWorker:false, lowLatencyMode:true });
-    h.loadSource(url); h.attachMedia(v);
-    h.on(window.Hls.Events.MANIFEST_PARSED, function(){ v.play().catch(function(){}); });
-    h.on(window.Hls.Events.ERROR, function(ev,d){ if(d.fatal) erroPlayer(screen,name,url); });
-    _hls = h;
-  } else { v.src = url; v.play().catch(function(){}); }
-  v.onerror = function(){ erroPlayer(screen, name, url); };
+
+  var isHLS = /\.m3u8?(\?|$)/i.test(url)
+    || url.indexOf('type=m3u') >= 0
+    || url.indexOf('output=mpegts') >= 0
+    || url.indexOf('/live/') >= 0
+    || url.indexOf('/hls/') >= 0;
+
+  function iniciarVideo() {
+    var v = document.createElement('video');
+    v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
+    v.controls = true; v.autoplay = true; v.playsInline = true;
+    screen.appendChild(v);
+
+    if (isHLS && window.Hls && window.Hls.isSupported()) {
+      var h = new window.Hls({
+        enableWorker: false,
+        lowLatencyMode: true,
+        maxBufferLength: 30,
+        xhrSetup: function(xhr) { xhr.withCredentials = false; }
+      });
+      h.loadSource(url);
+      h.attachMedia(v);
+      h.on(window.Hls.Events.MANIFEST_PARSED, function(){ v.play().catch(function(){}); });
+      h.on(window.Hls.Events.ERROR, function(ev, d){
+        if (d.fatal) {
+          h.destroy();
+          v.remove();
+          erroPlayer(screen, name, url);
+        }
+      });
+      _hls = h;
+    } else if (isHLS && document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari nativo HLS
+      v.src = url;
+      v.play().catch(function(){ erroPlayer(screen, name, url); });
+    } else if (!isHLS) {
+      v.src = url;
+      v.play().catch(function(){});
+    } else {
+      // HLS.js não disponível e navegador não suporta nativamente
+      v.remove();
+      erroPlayer(screen, name, url);
+    }
+    v.onerror = function(){ erroPlayer(screen, name, url); };
+  }
+
+  if (isHLS && !_hlsReady) {
+    // HLS.js ainda não carregou — aguarda
+    _hlsPendente = { url: url, name: name };
+    var d = document.createElement('div');
+    d.className = 'player-err';
+    d.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:.85rem;letter-spacing:1px;z-index:15;';
+    d.textContent = '⏳ Carregando player...';
+    screen.appendChild(d);
+  } else {
+    iniciarVideo();
+  }
 }
 
 function erroPlayer(screen, name, url) {
@@ -1525,23 +1587,29 @@ var catchups=[
 var cg=document.getElementById('catchupGrid');
 for(var i=0;i<catchups.length;i++){var c=catchups[i];cg.innerHTML+='<div class="cu-card"><div class="cu-ch">'+c.ch+'</div><div class="cu-prog">'+c.prog+'</div><div class="cu-time">'+c.time+'</div><div class="cu-bar"><div class="cu-fill" style="width:'+c.fill+'%"></div></div></div>';}
 
-// HELPERS
-function hesc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function aesc(s){ return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function iconeCh(g){
-  g=(g||'').toLowerCase();
-  if(g.indexOf('sport')>=0||g.indexOf('esport')>=0||g.indexOf('futebol')>=0) return '⚽';
-  if(g.indexOf('news')>=0||g.indexOf('notic')>=0) return '📰';
-  if(g.indexOf('kids')>=0||g.indexOf('infan')>=0) return '🧒';
-  if(g.indexOf('film')>=0||g.indexOf('movie')>=0||g.indexOf('cinema')>=0) return '🎬';
-  if(g.indexOf('seri')>=0) return '📺';
-  if(g.indexOf('music')>=0||g.indexOf('musica')>=0) return '🎵';
-  if(g.indexOf('doc')>=0) return '🌍';
-  return '📡';
-}
-
-// HLS.js
-(function(){ var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js'; document.head.appendChild(s); })();
+// HLS.js — carrega e dispara stream pendente se houver
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
+  s.onload = function() {
+    _hlsReady = true;
+    if (_hlsPendente) {
+      var p = _hlsPendente; _hlsPendente = null;
+      // Remove mensagem de aguardando
+      var screen = document.querySelector('.player-screen');
+      [].forEach.call(screen.querySelectorAll('.player-err'), function(e){ e.remove(); });
+      tocarStream(p.url, p.name);
+    }
+  };
+  s.onerror = function() {
+    _hlsReady = true; // marca como pronto mesmo com erro para não travar
+    if (_hlsPendente) {
+      var p = _hlsPendente; _hlsPendente = null;
+      tocarStream(p.url, p.name);
+    }
+  };
+  document.head.appendChild(s);
+})();
 
 // INIT
 carregarConf('pjplay_m3u', function(url) {
