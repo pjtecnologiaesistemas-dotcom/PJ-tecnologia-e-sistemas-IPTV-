@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PJ Play — Streaming</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --navy:#050d1a;
+  --blue1:#0a1f3d;
+  --blue2:#0d3878;
+  --cyan:#00c8f8;
+  --cyan2:#00eaff;
+  --silver:#c8d8f0;
+  --white:#eef4ff;
+  --accent:#f0a500;
+  --dark:#030a14;
+  --card:#0b1d38;
+  --card2:#081527;
+  --text-dim:rgba(200,216,240,0.55);
+  --border:rgba(0,200,248,0.15);
+  --r:12px;
+}
+
+html,body{
+  height:100%;
+  background:var(--navy);
+  color:var(--white);
+  font-family:'Rajdhani',sans-serif;
+  overflow:hidden;
+}
+
+/* ── GRID BG ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,200,248,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,248,.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(0,56,120,.3) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+
+/* ══════════════════
+   LAYOUT
+══════════════════ */
+.app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;}
+
+/* ── TOP NAV ── */
+.topnav{
+  display:flex;align-items:center;gap:0;
+  padding:0 20px;
+  height:64px;
+  background:linear-gradient(180deg,rgba(5,13,26,.98) 0%,rgba(5,13,26,.85) 100%);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+}
+.topnav::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan) 30%,var(--cyan) 70%,transparent);
+  opacity:.25;
+}
+
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-right:28px;text-decoration:none;}
+.logo-hex-sm{
+  position:relative;width:38px;height:42px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-hex-sm svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 8px rgba(0,200,248,.5));}
+.logo-hex-sm .mono{
+  position:relative;z-index:2;
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:.9rem;
+  color:var(--white);letter-spacing:-1px;line-height:1;
+}
+.logo-hex-sm .mono span{color:var(--cyan2);}
+.logo-text{display:flex;flex-direction:column;line-height:1;}
+.logo-text .brand{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:2px;color:var(--white);}
+.logo-text .brand em{color:var(--cyan2);font-style:normal;}
+.logo-text .sub{font-family:'Rajdhani',sans-serif;font-size:.6rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--cyan);opacity:.6;}
+
+.nav-tabs{display:flex;gap:2px;flex:1;}
+.nav-tab{
+  display:flex;align-items:center;gap:7px;
+  padding:0 14px;height:64px;
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-dim);cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+  position:relative;white-space:nowrap;
+}
+.nav-tab .ico{font-size:1rem;opacity:.7;}
+.nav-tab:hover{color:var(--silver);}
+.nav-tab.active{color:var(--cyan2);border-bottom-color:var(--cyan2);}
+.nav-tab.active .ico{opacity:1;}
+
+.nav-actions{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  padding:0 12px;height:34px;
+  background:rgba(0,200,248,.06);
+  border:1px solid var(--border);border-radius:8px;
+  cursor:text;
+}
+.search-box input{
+  background:transparent;border:none;outline:none;
+  color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.85rem;
+  width:140px;letter-spacing:.5px;
+}
+.search-box input::placeholder{color:var(--text-dim);}
+.search-box .sico{color:var(--cyan);opacity:.6;font-size:.85rem;}
+
+.btn-account{
+  display:flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue2),#051225);
+  border:1px solid rgba(0,200,248,.3);
+  color:var(--cyan);font-size:.85rem;cursor:pointer;
+}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 20px 40px;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:rgba(0,200,248,.25);border-radius:2px;}
+
+/* ── SECTIONS ── */
+.section{display:none;}
+.section.active{display:block;}
+
+/* ══════════════════
+   HOME
+══════════════════ */
+.hero{
+  position:relative;
+  border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,#051830 0%,#0a2850 40%,#071520 100%);
+  border:1px solid var(--border);
+  padding:48px 40px;
+  margin-bottom:32px;
+  display:flex;align-items:center;gap:40px;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 50%,rgba(0,200,248,.08) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 50%,rgba(13,56,120,.2) 0%,transparent 70%);
+}
+.hero-scan{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,248,.3),transparent);
+  animation:scanH 8s linear infinite;
+}
+@keyframes scanH{0%{top:-2px}100%{top:102%}}
+
+.hero-badge{
+  flex-shrink:0;
+  width:110px;height:120px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.hero-badge svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(0,200,248,.5));}
+.hero-badge .hm{
+  position:relative;z-index:2;
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:2.2rem;
+  color:var(--white);letter-spacing:-2px;line-height:1;
+  text-shadow:0 0 20px rgba(0,234,255,.6);
+}
+.hero-badge .hm span{color:var(--cyan2);}
+
+.hero-info{position:relative;}
+.hero-info h1{
+  font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--white);
+  line-height:1.2;
+  text-shadow:0 0 30px rgba(0,200,248,.2);
+}
+.hero-info h1 em{color:var(--cyan2);font-style:normal;}
+.hero-info .hero-sub{
+  font-size:.85rem;letter-spacing:4px;text-transform:uppercase;
+  color:var(--cyan);opacity:.7;margin-top:6px;
+}
+.hero-divider{
+  width:180px;height:1px;margin:18px 0;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+  position:relative;
+}
+.hero-divider::after{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:5px;height:5px;background:var(--cyan2);border-radius:50%;box-shadow:0 0 8px var(--cyan2);}
+.hero-tagline{font-size:.95rem;font-weight:300;letter-spacing:2px;color:var(--silver);opacity:.7;line-height:1.6;}
+.hero-tagline strong{color:var(--accent);font-weight:600;opacity:1;}
+.hero-btns{display:flex;gap:10px;margin-top:22px;}
+.btn-primary{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue2),#0a2860);
+  border:1px solid rgba(0,200,248,.4);
+  color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.9rem;
+  font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+}
+.btn-primary:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,200,248,.25);}
+.btn-secondary{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:8px;
+  background:rgba(0,200,248,.06);
+  border:1px solid var(--border);
+  color:var(--cyan);font-family:'Rajdhani',sans-serif;font-size:.9rem;
+  font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+}
+.btn-secondary:hover{background:rgba(0,200,248,.12);border-color:var(--cyan);}
+
+/* Stats row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;
+}
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:18px 20px;
+  display:flex;align-items:center;gap:14px;
+  transition:border-color .2s,transform .2s;
+}
+.stat-card:hover{border-color:rgba(0,200,248,.35);transform:translateY(-2px);}
+.stat-ico{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--blue2),#051225);
+  border:1px solid rgba(0,200,248,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;
+}
+.stat-info .val{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:var(--cyan2);}
+.stat-info .lbl{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-top:2px;}
+
+/* Row title */
+.row-title{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.row-title h2{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--silver);}
+.row-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.row-title .badge{
+  font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;
+  background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.25);color:var(--cyan);
+}
+
+/* Cards grid */
+.cards-scroll{
+  display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;margin-bottom:32px;
+}
+.cards-scroll::-webkit-scrollbar{height:3px;}
+.cards-scroll::-webkit-scrollbar-thumb{background:rgba(0,200,248,.2);border-radius:2px;}
+
+.vod-card{
+  flex-shrink:0;width:160px;
+  border-radius:10px;overflow:hidden;
+  background:var(--card2);
+  border:1px solid var(--border);cursor:pointer;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+  position:relative;
+}
+.vod-card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(0,200,248,.4);box-shadow:0 8px 30px rgba(0,0,0,.5);}
+.vod-thumb{
+  height:220px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  font-size:3rem;
+}
+.vod-thumb .gradient-bg{
+  position:absolute;inset:0;
+}
+.vod-thumb .play-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;font-size:2.5rem;
+}
+.vod-card:hover .play-overlay{opacity:1;}
+.vod-label{
+  position:absolute;top:8px;left:8px;
+  font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:600;
+}
+.vod-label.live{background:rgba(255,50,50,.85);color:#fff;}
+.vod-label.new{background:rgba(0,200,248,.85);color:#050d1a;}
+.vod-label.fav{background:rgba(240,165,0,.85);color:#050d1a;}
+.vod-info{padding:10px 12px 12px;}
+.vod-title{font-size:.82rem;font-weight:600;letter-spacing:.5px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vod-meta{font-size:.68rem;color:var(--text-dim);margin-top:3px;letter-spacing:.5px;}
+
+/* ══════════════════
+   LIVE TV
+══════════════════ */
+.live-layout{display:flex;gap:16px;height:calc(100vh - 130px);}
+.live-sidebar{
+  width:280px;flex-shrink:0;
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sidebar-search{padding:12px;border-bottom:1px solid var(--border);}
+.sidebar-search input{
+  width:100%;background:rgba(0,200,248,.05);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;color:var(--white);
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;outline:none;
+}
+.cat-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;
+}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat-tab{
+  flex-shrink:0;padding:9px 14px;font-size:.72rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-dim);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;
+}
+.cat-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.channel-list{flex:1;overflow-y:auto;}
+.channel-list::-webkit-scrollbar{width:3px;}
+.channel-list::-webkit-scrollbar-thumb{background:rgba(0,200,248,.2);}
+.ch-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid rgba(0,200,248,.05);
+  transition:background .15s;
+}
+.ch-item:hover,.ch-item.active{background:rgba(0,200,248,.07);}
+.ch-item.active{border-left:2px solid var(--cyan);}
+.ch-num{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--text-dim);width:22px;}
+.ch-logo{
+  width:38px;height:28px;border-radius:5px;
+  background:linear-gradient(135deg,var(--blue2),#051225);
+  border:1px solid rgba(0,200,248,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;flex-shrink:0;
+}
+.ch-details{flex:1;min-width:0;}
+.ch-name{font-size:.82rem;font-weight:600;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-prog{font-size:.67rem;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-live{width:6px;height:6px;border-radius:50%;background:#f55;flex-shrink:0;animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.live-player{
+  flex:1;border-radius:var(--r);overflow:hidden;
+  background:#000;border:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.player-screen{
+  flex:1;
+  background:linear-gradient(135deg,#020810 0%,#051225 50%,#020810 100%);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.player-screen::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,200,248,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,248,.015) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.player-logo-bg{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  opacity:.3;
+}
+.player-logo-bg .big-mono{
+  font-family:'Orbitron',sans-serif;font-size:5rem;font-weight:900;
+  color:var(--cyan2);letter-spacing:-4px;
+  text-shadow:0 0 60px rgba(0,234,255,.6);
+}
+.player-logo-bg .big-mono span{color:var(--white);}
+.player-logo-bg p{font-family:'Orbitron',sans-serif;font-size:.9rem;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;}
+
+.player-info-bar{
+  padding:12px 18px;
+  background:linear-gradient(180deg,rgba(5,13,26,.95),rgba(5,13,26,.98));
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.player-ch-name{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;color:var(--white);letter-spacing:1px;}
+.player-prog{font-size:.8rem;color:var(--text-dim);}
+.player-actions{margin-left:auto;display:flex;gap:8px;}
+.player-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:7px;
+  background:rgba(0,200,248,.08);border:1px solid var(--border);
+  color:var(--cyan);font-family:'Rajdhani',sans-serif;font-size:.78rem;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+}
+.player-btn:hover{background:rgba(0,200,248,.16);border-color:rgba(0,200,248,.4);}
+
+/* ══════════════════
+   VOD (Movies/Series)
+══════════════════ */
+.vod-filters{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;
+}
+.filter-chip{
+  padding:6px 14px;border-radius:20px;
+  background:rgba(0,200,248,.06);border:1px solid var(--border);
+  color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.78rem;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+}
+.filter-chip.active,.filter-chip:hover{background:rgba(0,200,248,.15);border-color:rgba(0,200,248,.4);color:var(--cyan);}
+.filter-sep{width:1px;height:24px;background:var(--border);}
+.sort-select{
+  background:rgba(0,200,248,.06);border:1px solid var(--border);border-radius:8px;
+  color:var(--silver);font-family:'Rajdhani',sans-serif;font-size:.78rem;
+  letter-spacing:1px;padding:6px 12px;outline:none;cursor:pointer;
+  margin-left:auto;
+}
+.sort-select option{background:var(--navy);}
+
+.vod-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;
+}
+
+/* ══════════════════
+   CATCH UP
+══════════════════ */
+.catchup-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;
+}
+.cu-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px;cursor:pointer;
+  transition:transform .2s,border-color .2s;
+}
+.cu-card:hover{transform:translateY(-3px);border-color:rgba(0,200,248,.35);}
+.cu-card .cu-ch{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--cyan2);letter-spacing:1px;margin-bottom:8px;}
+.cu-card .cu-prog{font-size:.9rem;font-weight:600;color:var(--white);margin-bottom:4px;}
+.cu-card .cu-time{font-size:.75rem;color:var(--text-dim);letter-spacing:.5px;}
+.cu-card .cu-bar{
+  height:3px;background:rgba(0,200,248,.15);border-radius:2px;margin-top:12px;
+}
+.cu-card .cu-fill{height:100%;background:var(--cyan);border-radius:2px;}
+
+/* ══════════════════
+   SETTINGS
+══════════════════ */
+.settings-layout{display:grid;grid-template-columns:220px 1fr;gap:16px;}
+.settings-nav{
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;
+}
+.settings-nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 18px;cursor:pointer;
+  border-left:2px solid transparent;
+  color:var(--text-dim);font-size:.85rem;font-weight:600;letter-spacing:.5px;
+  transition:all .2s;
+}
+.settings-nav-item:hover{background:rgba(0,200,248,.05);color:var(--silver);}
+.settings-nav-item.active{background:rgba(0,200,248,.08);border-left-color:var(--cyan);color:var(--cyan);}
+.settings-content{
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r);
+  padding:24px;
+}
+.setting-group{margin-bottom:28px;}
+.setting-group h3{
+  font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--cyan);
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid rgba(0,200,248,.06);
+}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:.88rem;color:var(--silver);}
+.setting-desc{font-size:.72rem;color:var(--text-dim);margin-top:2px;letter-spacing:.3px;}
+.toggle{
+  width:42px;height:24px;background:rgba(0,200,248,.15);border:1px solid var(--border);
+  border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:rgba(0,200,248,.4);border-color:var(--cyan);}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--text-dim);transition:left .2s,background .2s;
+}
+.toggle.on::after{left:21px;background:var(--cyan2);}
+.setting-input{
+  background:rgba(0,200,248,.06);border:1px solid var(--border);border-radius:8px;
+  padding:7px 12px;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.85rem;
+  outline:none;width:220px;
+}
+.setting-input:focus{border-color:rgba(0,200,248,.4);}
+.btn-save{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 24px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue2),#051a40);
+  border:1px solid rgba(0,200,248,.4);
+  color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.88rem;
+  font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+}
+.btn-save:hover{box-shadow:0 0 20px rgba(0,200,248,.3);}
+
+/* ── ACCOUNT PANEL ── */
+.acc-panel{
+  position:fixed;top:64px;right:0;width:300px;height:calc(100vh - 64px);
+  background:linear-gradient(180deg,#061830 0%,#030c1a 100%);
+  border-left:1px solid var(--border);
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+  z-index:50;padding:24px;
+}
+.acc-panel.open{transform:translateX(0);}
+.acc-avatar{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue2),#051225);
+  border:2px solid rgba(0,200,248,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin-bottom:14px;
+}
+.acc-name{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;color:var(--white);letter-spacing:1px;}
+.acc-plan{
+  display:inline-block;margin-top:6px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(240,165,0,.15);border:1px solid rgba(240,165,0,.35);
+  color:var(--accent);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+}
+.acc-divider{height:1px;background:var(--border);margin:20px 0;}
+.acc-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.acc-stat{
+  background:rgba(0,200,248,.05);border:1px solid var(--border);border-radius:10px;
+  padding:14px;text-align:center;
+}
+.acc-stat .n{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:var(--cyan2);}
+.acc-stat .l{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-top:3px;}
+.acc-menu{display:flex;flex-direction:column;gap:4px;}
+.acc-menu-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:8px;
+  color:var(--text-dim);font-size:.85rem;cursor:pointer;
+  transition:all .2s;
+}
+.acc-menu-item:hover{background:rgba(0,200,248,.07);color:var(--silver);}
+.acc-menu-item .ico{color:var(--cyan);opacity:.7;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .live-layout{flex-direction:column;}
+  .live-sidebar{width:100%;height:220px;}
+  .settings-layout{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  .hero{flex-direction:column;padding:28px 24px;}
+  .nav-tab span.lbl{display:none;}
+  .search-box{display:none;}
+  .hero-info h1{font-size:1.4rem;}
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.section.active{animation:fadeUp .35s cubic-bezier(.22,1,.36,1) both;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── TOP NAV ── -->
+<nav class="topnav">
+  <a class="logo-wrap" href="#">
+    <div class="logo-hex-sm">
+      <svg viewBox="0 0 100 110" fill="none">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0d3878"/>
+            <stop offset="100%" stop-color="#051225"/>
+          </linearGradient>
+          <linearGradient id="hs" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00eaff"/>
+            <stop offset="50%" stop-color="#0088cc"/>
+            <stop offset="100%" stop-color="#00c8f8"/>
+          </linearGradient>
+        </defs>
+        <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="url(#hg)" stroke="url(#hs)" stroke-width="3"/>
+        <polygon points="50,12 88,33 88,78 50,98 12,78 12,33" fill="none" stroke="rgba(0,200,248,0.15)" stroke-width="1"/>
+        <circle cx="50" cy="4" r="2" fill="#00eaff" opacity=".9"/>
+        <circle cx="96" cy="28" r="2" fill="#00eaff" opacity=".9"/>
+        <circle cx="96" cy="82" r="2" fill="#00eaff" opacity=".9"/>
+        <circle cx="50" cy="106" r="2" fill="#00eaff" opacity=".9"/>
+        <circle cx="4" cy="82" r="2" fill="#00eaff" opacity=".9"/>
+        <circle cx="4" cy="28" r="2" fill="#00eaff" opacity=".9"/>
+      </svg>
+      <div class="mono">P<span>J</span></div>
+    </div>
+    <div class="logo-text">
+      <div class="brand"><em>PJ</em> PLAY</div>
+      <div class="sub">Streaming</div>
+    </div>
+  </a>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showSection('home',this)">
+      <span class="ico">⌂</span><span class="lbl">Home</span>
+    </div>
+    <div class="nav-tab" onclick="showSection('live',this)">
+      <span class="ico">📡</span><span class="lbl">Live TV</span>
+    </div>
+    <div class="nav-tab" onclick="showSection('movies',this)">
+      <span class="ico">🎬</span><span class="lbl">Filmes</span>
+    </div>
+    <div class="nav-tab" onclick="showSection('series',this)">
+      <span class="ico">📺</span><span class="lbl">Séries</span>
+    </div>
+    <div class="nav-tab" onclick="showSection('catchup',this)">
+      <span class="ico">⏮</span><span class="lbl">Catch Up</span>
+    </div>
+    <div class="nav-tab" onclick="showSection('settings',this)">
+      <span class="ico">⚙</span><span class="lbl">Config.</span>
+    </div>
+  </div>
+
+  <div class="nav-actions">
+    <div class="search-box">
+      <span class="sico">🔍</span>
+      <input type="text" placeholder="Buscar conteúdo...">
+    </div>
+    <div class="btn-account" onclick="toggleAccount()">👤</div>
+  </div>
+</nav>
+
+<!-- ── ACCOUNT PANEL ── -->
+<div class="acc-panel" id="accPanel">
+  <div class="acc-avatar">👤</div>
+  <div class="acc-name">Usuário PJ Play</div>
+  <div class="acc-plan">⭐ Plano Premium</div>
+  <div class="acc-divider"></div>
+  <div class="acc-stat-row">
+    <div class="acc-stat"><div class="n">847</div><div class="l">Canais</div></div>
+    <div class="acc-stat"><div class="n">3.2k</div><div class="l">VOD</div></div>
+    <div class="acc-stat"><div class="n">28</div><div class="l">Favoritos</div></div>
+    <div class="acc-stat"><div class="n">∞</div><div class="l">Streams</div></div>
+  </div>
+  <div class="acc-divider"></div>
+  <div class="acc-menu">
+    <div class="acc-menu-item"><span class="ico">⚙</span> Configurações</div>
+    <div class="acc-menu-item"><span class="ico">⭐</span> Meus Favoritos</div>
+    <div class="acc-menu-item"><span class="ico">📂</span> Histórico</div>
+    <div class="acc-menu-item"><span class="ico">💳</span> Meu Plano</div>
+    <div class="acc-menu-item"><span class="ico">🚪</span> Sair</div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main" id="mainContent" onclick="closeAccount(event)">
+
+  <!-- ════════════ HOME ════════════ -->
+  <div class="section active" id="sec-home">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-scan"></div>
+      <div class="hero-badge">
+        <svg viewBox="0 0 100 110" fill="none">
+          <defs>
+            <linearGradient id="hbg" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0d3878"/>
+              <stop offset="100%" stop-color="#030e22"/>
+            </linearGradient>
+            <linearGradient id="hbs" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00eaff"/>
+              <stop offset="50%" stop-color="#0099dd"/>
+              <stop offset="100%" stop-color="#00c8f8"/>
+            </linearGradient>
+          </defs>
+          <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="url(#hbg)" stroke="url(#hbs)" stroke-width="2.5"/>
+          <polygon points="50,14 86,34 86,78 50,96 14,78 14,34" fill="none" stroke="rgba(0,200,248,0.12)" stroke-width="1"/>
+          <circle cx="50" cy="4" r="3" fill="#00eaff" opacity=".8"/>
+          <circle cx="96" cy="28" r="3" fill="#00eaff" opacity=".8"/>
+          <circle cx="96" cy="82" r="3" fill="#00eaff" opacity=".8"/>
+          <circle cx="50" cy="106" r="3" fill="#00eaff" opacity=".8"/>
+          <circle cx="4" cy="82" r="3" fill="#00eaff" opacity=".8"/>
+          <circle cx="4" cy="28" r="3" fill="#00eaff" opacity=".8"/>
+        </svg>
+        <div class="hm">P<span>J</span></div>
+      </div>
+      <div class="hero-info">
+        <h1><em>PJ</em> TECNOLOGIA<br>E SISTEMAS</h1>
+        <div class="hero-sub">Streaming · IPTV · VOD</div>
+        <div class="hero-divider"></div>
+        <div class="hero-tagline"><strong>Inovação que conecta.</strong> Tecnologia que transforma.</div>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">📡 Assistir Agora</button>
+          <button class="btn-secondary" onclick="showSection('movies',document.querySelectorAll('.nav-tab')[2])">🎬 Ver Catálogo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-ico">📡</div>
+        <div class="stat-info"><div class="val">847</div><div class="lbl">Canais Live</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico">🎬</div>
+        <div class="stat-info"><div class="val">2.4k</div><div class="lbl">Filmes</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico">📺</div>
+        <div class="stat-info"><div class="val">680</div><div class="lbl">Séries</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico">⚡</div>
+        <div class="stat-info"><div class="val">4K</div><div class="lbl">Ultra HD</div></div>
+      </div>
+    </div>
+
+    <!-- Continue watching -->
+    <div class="row-title">
+      <h2>Continuar Assistindo</h2>
+      <span class="badge">Recente</span>
+    </div>
+    <div class="cards-scroll">
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#0a1525,#1a3060)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">📡</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">Globo HD</div><div class="vod-meta">Jornal Nacional • Agora</div></div>
+      </div>
+      <div class="vod-card">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#1a0a30,#3a1060)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">🎬</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label new">NOVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">Duna: Parte 2</div><div class="vod-meta">2024 • 2h46m • HD</div></div>
+      </div>
+      <div class="vod-card">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#0a2010,#1a5030)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">📺</span>
+          <div class="play-overlay">▶</div>
+        </div>
+        <div class="vod-info"><div class="vod-title">The Last of Us</div><div class="vod-meta">T2 E3 • 52min restam</div></div>
+      </div>
+      <div class="vod-card">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#251505,#5a3010)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">🎬</span>
+          <div class="play-overlay">▶</div>
+        </div>
+        <div class="vod-info"><div class="vod-title">Oppenheimer</div><div class="vod-meta">2023 • 3h0m • 4K</div></div>
+      </div>
+      <div class="vod-card">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#051525,#0a3060)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">📡</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">ESPN HD</div><div class="vod-meta">Futebol ao Vivo</div></div>
+      </div>
+      <div class="vod-card">
+        <div class="vod-thumb" style="background:linear-gradient(135deg,#200515,#501035)">
+          <span style="position:relative;z-index:1;font-size:2.5rem">🎬</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label fav">★ FAV</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">Barbie</div><div class="vod-meta">2023 • 1h54m • HD</div></div>
+      </div>
+    </div>
+
+    <!-- Popular channels -->
+    <div class="row-title">
+      <h2>Canais Populares</h2>
+      <span class="badge">847 Canais</span>
+    </div>
+    <div class="cards-scroll">
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#0a0a30,#151540)">
+          <span style="position:relative;z-index:1;font-size:2rem">🌐</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">Globo HD</div><div class="vod-meta">Ch. 04</div></div>
+      </div>
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#200010,#500030)">
+          <span style="position:relative;z-index:1;font-size:2rem">🏆</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">SporTV 2</div><div class="vod-meta">Ch. 23</div></div>
+      </div>
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#001020,#002050)">
+          <span style="position:relative;z-index:1;font-size:2rem">📰</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">CNN Brasil</div><div class="vod-meta">Ch. 09</div></div>
+      </div>
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#1a0000,#400000)">
+          <span style="position:relative;z-index:1;font-size:2rem">🎸</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">MTV HD</div><div class="vod-meta">Ch. 31</div></div>
+      </div>
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#102000,#204000)">
+          <span style="position:relative;z-index:1;font-size:2rem">🎭</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">HBO Max</div><div class="vod-meta">Ch. 44</div></div>
+      </div>
+      <div class="vod-card" onclick="showSection('live',document.querySelectorAll('.nav-tab')[1])">
+        <div class="vod-thumb" style="height:100px;background:linear-gradient(135deg,#001520,#003040)">
+          <span style="position:relative;z-index:1;font-size:2rem">🌍</span>
+          <div class="play-overlay">▶</div>
+          <span class="vod-label live">AO VIVO</span>
+        </div>
+        <div class="vod-info"><div class="vod-title">Discovery</div><div class="vod-meta">Ch. 17</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════ LIVE TV ════════════ -->
+  <div class="section" id="sec-live">
+    <div class="live-layout">
+      <div class="live-sidebar">
+        <div class="sidebar-search">
+          <input type="text" placeholder="🔍  Buscar canal...">
+        </div>
+        <div class="cat-tabs">
+          <div class="cat-tab active">Todos</div>
+          <div class="cat-tab">Abertos</div>
+          <div class="cat-tab">Esportes</div>
+          <div class="cat-tab">Notícias</div>
+          <div class="cat-tab">Filmes</div>
+          <div class="cat-tab">Kids</div>
+        </div>
+        <div class="channel-list">
+          <div class="ch-item active" onclick="selectChannel(this,'Globo HD','Jornal Nacional')">
+            <div class="ch-num">04</div>
+            <div class="ch-logo">🌐</div>
+            <div class="ch-details"><div class="ch-name">Globo HD</div><div class="ch-prog">Jornal Nacional</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'Record HD','Cidade Alerta')">
+            <div class="ch-num">07</div>
+            <div class="ch-logo">📡</div>
+            <div class="ch-details"><div class="ch-name">Record HD</div><div class="ch-prog">Cidade Alerta</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'SBT HD','Roda a Roda')">
+            <div class="ch-num">11</div>
+            <div class="ch-logo">📺</div>
+            <div class="ch-details"><div class="ch-name">SBT HD</div><div class="ch-prog">Roda a Roda</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'CNN Brasil','Ao Vivo')">
+            <div class="ch-num">12</div>
+            <div class="ch-logo">📰</div>
+            <div class="ch-details"><div class="ch-name">CNN Brasil</div><div class="ch-prog">Ao Vivo</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'ESPN HD','Futebol ao Vivo')">
+            <div class="ch-num">14</div>
+            <div class="ch-logo">⚽</div>
+            <div class="ch-details"><div class="ch-name">ESPN HD</div><div class="ch-prog">Futebol ao Vivo</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'SporTV 2','Tênis AO VIVO')">
+            <div class="ch-num">23</div>
+            <div class="ch-logo">🏆</div>
+            <div class="ch-details"><div class="ch-name">SporTV 2</div><div class="ch-prog">Tênis AO VIVO</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'MTV HD','Top 40')">
+            <div class="ch-num">31</div>
+            <div class="ch-logo">🎸</div>
+            <div class="ch-details"><div class="ch-name">MTV HD</div><div class="ch-prog">Top 40</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'HBO Max','The Last of Us')">
+            <div class="ch-num">44</div>
+            <div class="ch-logo">🎭</div>
+            <div class="ch-details"><div class="ch-name">HBO Max</div><div class="ch-prog">The Last of Us</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'Discovery','Caçadores de Mitos')">
+            <div class="ch-num">17</div>
+            <div class="ch-logo">🌍</div>
+            <div class="ch-details"><div class="ch-name">Discovery</div><div class="ch-prog">Caçadores de Mitos</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'Nick Jr','Patrulha Canina')">
+            <div class="ch-num">55</div>
+            <div class="ch-logo">🐾</div>
+            <div class="ch-details"><div class="ch-name">Nick Jr</div><div class="ch-prog">Patrulha Canina</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'Band HD','Programa do Ratinho')">
+            <div class="ch-num">13</div>
+            <div class="ch-logo">📻</div>
+            <div class="ch-details"><div class="ch-name">Band HD</div><div class="ch-prog">Programa do Ratinho</div></div>
+            <div class="ch-live"></div>
+          </div>
+          <div class="ch-item" onclick="selectChannel(this,'Fox Sports','NBA AO VIVO')">
+            <div class="ch-num">29</div>
+            <div class="ch-logo">🏀</div>
+            <div class="ch-details"><div class="ch-name">Fox Sports</div><div class="ch-prog">NBA AO VIVO</div></div>
+            <div class="ch-live"></div>
+          </div>
+        </div>
+      </div>
+      <div class="live-player">
+        <div class="player-screen">
+          <div class="player-logo-bg">
+            <div class="big-mono">P<span>J</span></div>
+            <p>Tecnologia e Sistemas</p>
+          </div>
+        </div>
+        <div class="player-info-bar">
+          <div>
+            <div class="player-ch-name" id="playerChName">Globo HD</div>
+            <div class="player-prog" id="playerProg">Jornal Nacional • Ao Vivo</div>
+          </div>
+          <div class="player-actions">
+            <button class="player-btn">⭐ Favoritar</button>
+            <button class="player-btn">⏮ Catch Up</button>
+            <button class="player-btn">ℹ️ Info</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MOVIES ════════════ -->
+  <div class="section" id="sec-movies">
+    <div class="vod-filters">
+      <div class="filter-chip active">Todos</div>
+      <div class="filter-chip">Ação</div>
+      <div class="filter-chip">Drama</div>
+      <div class="filter-chip">Comédia</div>
+      <div class="filter-chip">Terror</div>
+      <div class="filter-chip">Sci-Fi</div>
+      <div class="filter-chip">Animação</div>
+      <div class="filter-sep"></div>
+      <select class="sort-select">
+        <option>Mais Recentes</option>
+        <option>Mais Vistos</option>
+        <option>A-Z</option>
+        <option>Avaliação</option>
+      </select>
+    </div>
+    <div class="vod-grid" id="moviesGrid"></div>
+  </div>
+
+  <!-- ════════════ SERIES ════════════ -->
+  <div class="section" id="sec-series">
+    <div class="vod-filters">
+      <div class="filter-chip active">Todas</div>
+      <div class="filter-chip">Drama</div>
+      <div class="filter-chip">Comédia</div>
+      <div class="filter-chip">Crime</div>
+      <div class="filter-chip">Sci-Fi</div>
+      <div class="filter-chip">Fantasia</div>
+      <div class="filter-chip">Documentário</div>
+      <div class="filter-sep"></div>
+      <select class="sort-select">
+        <option>Mais Recentes</option>
+        <option>Em Exibição</option>
+        <option>A-Z</option>
+      </select>
+    </div>
+    <div class="vod-grid" id="seriesGrid"></div>
+  </div>
+
+  <!-- ════════════ CATCH UP ════════════ -->
+  <div class="section" id="sec-catchup">
+    <div class="row-title" style="margin-bottom:20px">
+      <h2>Catch Up · Últimas 7 dias</h2>
+      <span class="badge">Gravações</span>
+    </div>
+    <div class="catchup-grid" id="catchupGrid"></div>
+  </div>
+
+  <!-- ════════════ SETTINGS ════════════ -->
+  <div class="section" id="sec-settings">
+    <div class="settings-layout">
+      <div class="settings-nav">
+        <div class="settings-nav-item active">👤 Conta</div>
+        <div class="settings-nav-item">📡 Servidor IPTV</div>
+        <div class="settings-nav-item">🎬 Reprodução</div>
+        <div class="settings-nav-item">🔔 Notificações</div>
+        <div class="settings-nav-item">🌐 Idioma</div>
+        <div class="settings-nav-item">ℹ️ Sobre</div>
+      </div>
+      <div class="settings-content">
+        <div class="setting-group">
+          <h3>Informações da Conta</h3>
+          <div class="setting-row">
+            <div><div class="setting-label">URL do Servidor M3U</div><div class="setting-desc">Endereço da sua lista de canais</div></div>
+            <input class="setting-input" type="text" placeholder="http://servidor.com/lista.m3u">
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Usuário</div><div class="setting-desc">Login de acesso ao servidor</div></div>
+            <input class="setting-input" type="text" placeholder="usuario@email.com">
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Senha</div><div class="setting-desc">Senha do servidor IPTV</div></div>
+            <input class="setting-input" type="password" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="setting-group">
+          <h3>Preferências de Reprodução</h3>
+          <div class="setting-row">
+            <div><div class="setting-label">Qualidade automática</div><div class="setting-desc">Ajustar qualidade pela conexão</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Reprodução automática</div><div class="setting-desc">Próximo episódio automaticamente</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Legendas por padrão</div><div class="setting-desc">Ativar legendas ao iniciar</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Modo noturno</div><div class="setting-desc">Interface escura avançada</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <h3>Sobre o Aplicativo</h3>
+          <div class="setting-row">
+            <div class="setting-label">Versão</div>
+            <div style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.8rem;">PJ Play v1.0.0</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Desenvolvido por</div>
+            <div style="color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;">PJ Tecnologia e Sistemas</div>
+          </div>
+        </div>
+        <button class="btn-save">💾 Salvar Configurações</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let allChannels = [];      // parsed from M3U
+let currentChannel = null;
+let currentPlayer = null;
+
+// ── NAV ──
+function showSection(id, tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (tab) tab.classList.add('active');
+}
+
+// ── ACCOUNT PANEL ──
+function toggleAccount() {
+  document.getElementById('accPanel').classList.toggle('open');
+}
+function closeAccount(e) {
+  if (!e.target.closest('.acc-panel') && !e.target.closest('.btn-account')) {
+    document.getElementById('accPanel').classList.remove('open');
+  }
+}
+
+// ══════════════════════════════════════
+//  M3U PARSER
+// ══════════════════════════════════════
+function parseM3U(text) {
+  const lines = text.split(/\r?\n/);
+  const channels = [];
+  let current = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    if (line.startsWith('#EXTINF:')) {
+      current = { name: '', group: 'Geral', logo: '', url: '' };
+
+      // Name (after last comma)
+      const commaIdx = line.lastIndexOf(',');
+      if (commaIdx !== -1) current.name = line.slice(commaIdx + 1).trim();
+
+      // Attributes
+      const groupMatch = line.match(/group-title="([^"]*)"/i);
+      if (groupMatch) current.group = groupMatch[1].trim() || 'Geral';
+
+      const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
+      if (logoMatch) current.logo = logoMatch[1].trim();
+
+      const nameMatch = line.match(/tvg-name="([^"]*)"/i);
+      if (nameMatch && !current.name) current.name = nameMatch[1].trim();
+
+    } else if (line.startsWith('http') || line.startsWith('rtmp') || line.startsWith('rtsp')) {
+      if (current) {
+        current.url = line;
+        if (current.name) channels.push(current);
+        current = null;
+      }
+    }
+  }
+  return channels;
+}
+
+// ══════════════════════════════════════
+//  LOAD M3U (URL or File)
+// ══════════════════════════════════════
+async function loadM3UFromURL(url) {
+  showM3UStatus('loading', '⏳ Carregando lista...');
+  try {
+    // Try direct fetch first; if CORS blocks, use a proxy
+    let text;
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      text = await res.text();
+    } catch (corsErr) {
+      // Try CORS proxy as fallback
+      const proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
+      const res2 = await fetch(proxy, { signal: AbortSignal.timeout(20000) });
+      if (!res2.ok) throw new Error('HTTP ' + res2.status);
+      text = await res2.text();
+    }
+
+    if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
+      throw new Error('Arquivo não parece ser uma lista M3U válida');
+    }
+
+    const channels = parseM3U(text);
+    if (channels.length === 0) throw new Error('Nenhum canal encontrado na lista');
+
+    allChannels = channels;
+    saveSettings();
+    applyChannelsToUI();
+    showM3UStatus('ok', `✅ ${channels.length} canais carregados!`);
+  } catch (err) {
+    showM3UStatus('error', '❌ Erro: ' + err.message);
+  }
+}
+
+function loadM3UFromFile(file) {
+  showM3UStatus('loading', '⏳ Lendo arquivo...');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
+      showM3UStatus('error', '❌ Arquivo inválido. Use um arquivo .m3u ou .m3u8');
+      return;
+    }
+    const channels = parseM3U(text);
+    if (channels.length === 0) {
+      showM3UStatus('error', '❌ Nenhum canal encontrado no arquivo');
+      return;
+    }
+    allChannels = channels;
+    saveSettings();
+    applyChannelsToUI();
+    showM3UStatus('ok', `✅ ${channels.length} canais carregados!`);
+  };
+  reader.onerror = () => showM3UStatus('error', '❌ Erro ao ler o arquivo');
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════
+//  APPLY CHANNELS TO UI
+// ══════════════════════════════════════
+function applyChannelsToUI() {
+  if (allChannels.length === 0) return;
+
+  // Build category list
+  const groups = ['Todos', ...new Set(allChannels.map(c => c.group))].slice(0, 12);
+
+  // Render category tabs
+  const catTabsEl = document.querySelector('.cat-tabs');
+  catTabsEl.innerHTML = groups.map((g, i) =>
+    `<div class="cat-tab${i===0?' active':''}" data-group="${g}" onclick="filterChannels(this,'${g.replace(/'/g,"\\'")}')">
+      ${g.length > 10 ? g.slice(0,10)+'…' : g}
+    </div>`
+  ).join('');
+
+  renderChannelList(allChannels);
+
+  // Update stats
+  document.querySelectorAll('.stat-info .val')[0].textContent = allChannels.length;
+}
+
+function renderChannelList(channels) {
+  const listEl = document.querySelector('.channel-list');
+  if (channels.length === 0) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:.8rem;">Nenhum canal encontrado</div>';
+    return;
+  }
+
+  listEl.innerHTML = channels.slice(0, 300).map((ch, i) => {
+    const ico = getChannelIcon(ch.group);
+    return `<div class="ch-item" onclick="selectChannel(this,'${esc(ch.name)}','${esc(ch.url)}','${esc(ch.group)}')" data-url="${esc(ch.url)}" data-name="${esc(ch.name)}">
+      <div class="ch-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="ch-logo">${ch.logo ? `<img src="${ch.logo}" onerror="this.parentNode.textContent='${ico}'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">` : ico}</div>
+      <div class="ch-details">
+        <div class="ch-name">${escHtml(ch.name)}</div>
+        <div class="ch-prog">${escHtml(ch.group)}</div>
+      </div>
+      <div class="ch-live"></div>
+    </div>`;
+  }).join('');
+
+  // Auto-select first channel
+  const first = listEl.querySelector('.ch-item');
+  if (first) first.click();
+}
+
+function filterChannels(tabEl, group) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const filtered = group === 'Todos' ? allChannels : allChannels.filter(c => c.group === group);
+  renderChannelList(filtered);
+}
+
+// ── Channel search ──
+document.querySelector('.sidebar-search input').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { renderChannelList(allChannels); return; }
+  const filtered = allChannels.filter(c => c.name.toLowerCase().includes(q) || c.group.toLowerCase().includes(q));
+  renderChannelList(filtered);
+});
+
+// ── Select & play channel ──
+function selectChannel(el, name, url, group) {
+  document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('playerChName').textContent = name;
+  document.getElementById('playerProg').textContent = (group || 'Ao Vivo') + ' • Ao Vivo';
+  playStream(url, name);
+}
+
+function playStream(url, name) {
+  const screen = document.querySelector('.player-screen');
+  currentChannel = { url, name };
+
+  // Remove previous player
+  const old = screen.querySelector('video');
+  if (old) old.remove();
+  const oldHls = screen.querySelector('.hls-info');
+  if (oldHls) oldHls.remove();
+
+  if (!url) return;
+
+  // Create video element
+  const video = document.createElement('video');
+  video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
+  video.controls = true;
+  video.autoplay = true;
+  video.muted = false;
+
+  const isHLS = url.includes('.m3u8') || url.includes('.m3u');
+
+  if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
+    const hls = new Hls({ enableWorker: false, lowLatencyMode: true });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, (e, data) => {
+      if (data.fatal) showPlayerError(screen, name, url);
+    });
+    currentPlayer = hls;
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari native HLS
+    video.src = url;
+  } else {
+    // Direct stream (mp4, ts, etc.)
+    video.src = url;
+  }
+
+  video.onerror = () => showPlayerError(screen, name, url);
+  screen.querySelector('.player-logo-bg').style.display = 'none';
+  screen.appendChild(video);
+}
+
+function showPlayerError(screen, name, url) {
+  const old = screen.querySelector('video');
+  if (old) old.remove();
+  screen.querySelector('.player-logo-bg').style.display = '';
+
+  const info = document.createElement('div');
+  info.className = 'hls-info';
+  info.style.cssText = 'position:absolute;bottom:12px;left:12px;right:12px;background:rgba(255,50,50,.15);border:1px solid rgba(255,80,80,.3);border-radius:8px;padding:10px 14px;font-size:.75rem;color:#ff8888;z-index:20;';
+  info.innerHTML = `⚠️ Não foi possível reproduzir "<strong>${escHtml(name)}</strong>".<br>O stream pode estar offline ou bloqueado por CORS neste navegador.<br><a href="${url}" target="_blank" style="color:var(--cyan);text-decoration:none;">Abrir stream diretamente ↗</a>`;
+  screen.appendChild(info);
+}
+
+// ══════════════════════════════════════
+//  SETTINGS SAVE
+// ══════════════════════════════════════
+function saveSettings() {
+  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
+  const user = document.querySelector('.setting-input[data-key="user"]').value.trim();
+  const pass = document.querySelector('.setting-input[data-key="pass"]').value.trim();
+  localStorage.setItem('pjplay_m3u', url);
+  localStorage.setItem('pjplay_user', user);
+  localStorage.setItem('pjplay_pass', pass);
+  if (allChannels.length > 0) {
+    localStorage.setItem('pjplay_channels_count', allChannels.length);
+  }
+}
+
+function loadSettings() {
+  const url = localStorage.getItem('pjplay_m3u') || '';
+  const user = localStorage.getItem('pjplay_user') || '';
+  const pass = localStorage.getItem('pjplay_pass') || '';
+  if (url) document.querySelector('.setting-input[data-key="m3u"]').value = url;
+  if (user) document.querySelector('.setting-input[data-key="user"]').value = user;
+  if (pass) document.querySelector('.setting-input[data-key="pass"]').value = pass;
+}
+
+function showM3UStatus(type, msg) {
+  const el = document.getElementById('m3uStatus');
+  el.textContent = msg;
+  el.style.color = type === 'ok' ? 'var(--cyan)' : type === 'error' ? '#ff6666' : 'var(--accent)';
+  el.style.display = 'block';
+}
+
+// ── Status element
+const statusEl = document.createElement('div');
+statusEl.id = 'm3uStatus';
+statusEl.style.cssText = 'display:none;margin-top:8px;font-size:.82rem;letter-spacing:.5px;';
+document.querySelector('.btn-save').insertAdjacentElement('afterend', statusEl);
+
+// ── Rewrite settings inputs with data-key ──
+document.querySelectorAll('.setting-input').forEach((inp, i) => {
+  if (i === 0) inp.setAttribute('data-key', 'm3u');
+  if (i === 1) inp.setAttribute('data-key', 'user');
+  if (i === 2) inp.setAttribute('data-key', 'pass');
+});
+
+// ── File input for local M3U ──
+const fileWrap = document.createElement('div');
+fileWrap.style.cssText = 'margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+fileWrap.innerHTML = `
+  <label style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(0,200,248,.08);border:1px solid var(--border);color:var(--cyan);font-size:.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
+    📂 Carregar arquivo .m3u
+    <input type="file" accept=".m3u,.m3u8,.txt" style="display:none;" id="m3uFileInput">
+  </label>
+  <button onclick="handleLoadBtn()" style="padding:8px 16px;border-radius:8px;background:rgba(0,200,248,.12);border:1px solid rgba(0,200,248,.3);color:var(--cyan2);font-size:.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
+    📡 Carregar URL
+  </button>`;
+document.querySelector('.btn-save').insertAdjacentElement('beforebegin', fileWrap);
+
+document.getElementById('m3uFileInput').addEventListener('change', function() {
+  if (this.files[0]) loadM3UFromFile(this.files[0]);
+});
+
+function handleLoadBtn() {
+  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
+  if (!url) { showM3UStatus('error', '❌ Insira a URL da lista M3U primeiro'); return; }
+  loadM3UFromURL(url);
+}
+
+// ── Save button ──
+document.querySelector('.btn-save').addEventListener('click', function() {
+  saveSettings();
+  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
+  if (url && allChannels.length === 0) {
+    loadM3UFromURL(url);
+  } else {
+    showM3UStatus('ok', '✅ Configurações salvas!');
+    setTimeout(() => { document.getElementById('m3uStatus').style.display='none'; }, 3000);
+  }
+});
+
+// ── Load HLS.js dynamically ──
+(function loadHLSjs() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
+  document.head.appendChild(s);
+})();
+
+// ══════════════════════════════════════
+//  FILTER CHIPS (VOD)
+// ══════════════════════════════════════
+document.querySelectorAll('.vod-filters').forEach(cont => {
+  cont.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      cont.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+});
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function esc(str) {
+  return (str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getChannelIcon(group) {
+  const g = (group||'').toLowerCase();
+  if (g.includes('esporte') || g.includes('sport') || g.includes('futebol')) return '⚽';
+  if (g.includes('news') || g.includes('notícia') || g.includes('jornalismo')) return '📰';
+  if (g.includes('kids') || g.includes('infantil') || g.includes('criança')) return '🧒';
+  if (g.includes('filme') || g.includes('movie') || g.includes('cinema')) return '🎬';
+  if (g.includes('série') || g.includes('series')) return '📺';
+  if (g.includes('música') || g.includes('music')) return '🎵';
+  if (g.includes('document')) return '🌍';
+  return '📡';
+}
+
+// ══════════════════════════════════════
+//  GENERATE STATIC VOD (Movies/Series)
+// ══════════════════════════════════════
+const movies = [
+  {t:'Duna: Parte 2',y:'2024',d:'2h46m',g:'Sci-Fi',bg:'135deg,#1a0a30,#3a1060',ico:'🪐',q:'4K'},
+  {t:'Oppenheimer',y:'2023',d:'3h0m',g:'Drama',bg:'135deg,#251505,#5a3010',ico:'💥',q:'4K'},
+  {t:'Barbie',y:'2023',d:'1h54m',g:'Comédia',bg:'135deg,#200515,#501035',ico:'💖',q:'HD'},
+  {t:'Pobres Criaturas',y:'2023',d:'2h21m',g:'Drama',bg:'135deg,#0a1025,#203060',ico:'🎭',q:'HD'},
+  {t:'Wonka',y:'2023',d:'1h56m',g:'Fantasia',bg:'135deg,#1a1000,#403000',ico:'🍫',q:'HD'},
+  {t:'Napoleon',y:'2023',d:'2h38m',g:'Histórico',bg:'135deg,#100a00,#302000',ico:'⚔️',q:'HD'},
+  {t:'Aquaman 2',y:'2023',d:'2h4m',g:'Ação',bg:'135deg,#001525,#003050',ico:'🌊',q:'4K'},
+  {t:'The Marvels',y:'2023',d:'1h45m',g:'Ação',bg:'135deg,#150025,#400060',ico:'🦸',q:'HD'},
+  {t:'Indiana Jones 5',y:'2023',d:'2h34m',g:'Aventura',bg:'135deg,#200800,#502000',ico:'🎩',q:'HD'},
+  {t:'Missão Impossível 7',y:'2023',d:'2h43m',g:'Ação',bg:'135deg,#0a1520,#203040',ico:'🕵️',q:'4K'},
+  {t:'Guardiões 3',y:'2023',d:'2h29m',g:'Ação',bg:'135deg,#0a0a30,#151560',ico:'🚀',q:'4K'},
+  {t:'Fast X',y:'2023',d:'2h21m',g:'Ação',bg:'135deg,#250505,#600010',ico:'🏎️',q:'HD'},
+];
+const moviesGrid = document.getElementById('moviesGrid');
+movies.forEach(m => {
+  moviesGrid.innerHTML += `<div class="vod-card">
+    <div class="vod-thumb" style="background:linear-gradient(${m.bg})">
+      <span style="position:relative;z-index:1;font-size:2.5rem">${m.ico}</span>
+      <div class="play-overlay">▶</div>
+      <span class="vod-label new">${m.q}</span>
+    </div>
+    <div class="vod-info">
+      <div class="vod-title">${m.t}</div>
+      <div class="vod-meta">${m.y} • ${m.d} • ${m.g}</div>
+    </div>
+  </div>`;
+});
+
+const series = [
+  {t:'The Last of Us',s:'T2',g:'Drama/Terror',bg:'135deg,#0a2010,#1a5030',ico:'🍄'},
+  {t:'House of Dragon',s:'T2',g:'Fantasia',bg:'135deg,#200a00,#500000',ico:'🐉'},
+  {t:'Succession',s:'T4',g:'Drama',bg:'135deg,#100a20,#301060',ico:'💰'},
+  {t:'Andor',s:'T2',g:'Sci-Fi',bg:'135deg,#051020,#0a3050',ico:'⚡'},
+  {t:'The Bear',s:'T3',g:'Drama',bg:'135deg,#201000,#503000',ico:'🍳'},
+  {t:'Shogun',s:'T1',g:'Histórico',bg:'135deg,#100000,#300000',ico:'⛩️'},
+  {t:'Fallout',s:'T1',g:'Sci-Fi',bg:'135deg,#102000,#204000',ico:'☢️'},
+  {t:'True Detective',s:'T4',g:'Crime',bg:'135deg,#051015,#0a2030',ico:'🔍'},
+  {t:'Severance',s:'T2',g:'Thriller',bg:'135deg,#050515,#101030',ico:'🏢'},
+  {t:'The Penguin',s:'T1',g:'Crime',bg:'135deg,#030508,#080f1f',ico:'🐧'},
+  {t:'Yellowstone',s:'T5',g:'Drama',bg:'135deg,#0a0800,#1e1400',ico:'🤠'},
+  {t:'Invincible',s:'T3',g:'Animação',bg:'135deg,#1a0010,#3a0040',ico:'💪'},
+];
+const seriesGrid = document.getElementById('seriesGrid');
+series.forEach(s => {
+  seriesGrid.innerHTML += `<div class="vod-card">
+    <div class="vod-thumb" style="background:linear-gradient(${s.bg})">
+      <span style="position:relative;z-index:1;font-size:2.5rem">${s.ico}</span>
+      <div class="play-overlay">▶</div>
+      <span class="vod-label new">${s.s}</span>
+    </div>
+    <div class="vod-info">
+      <div class="vod-title">${s.t}</div>
+      <div class="vod-meta">${s.s} • ${s.g}</div>
+    </div>
+  </div>`;
+});
+
+const catchups = [
+  {ch:'Globo HD',prog:'Jornal Nacional',time:'20h - 21h20',fill:85},
+  {ch:'Globo HD',prog:'Fantástico',time:'20h35 - 22h45',fill:100},
+  {ch:'SporTV 2',prog:'Futebol: Flamengo x Palmeiras',time:'18h - 20h15',fill:100},
+  {ch:'Record HD',prog:'Balanço Geral',time:'12h - 14h',fill:100},
+  {ch:'CNN Brasil',prog:'Primetime',time:'21h - 22h',fill:100},
+  {ch:'Band HD',prog:'Jogo Aberto',time:'11h - 12h30',fill:100},
+  {ch:'ESPN HD',prog:'SportsCenter',time:'22h - 23h',fill:60},
+  {ch:'Discovery',prog:'Caçadores de Mitos: Especial',time:'21h - 22h30',fill:100},
+];
+const catchupGrid = document.getElementById('catchupGrid');
+catchups.forEach(c => {
+  catchupGrid.innerHTML += `<div class="cu-card">
+    <div class="cu-ch">${c.ch}</div>
+    <div class="cu-prog">${c.prog}</div>
+    <div class="cu-time">🕐 ${c.time}</div>
+    <div class="cu-bar"><div class="cu-fill" style="width:${c.fill}%"></div></div>
+  </div>`;
+});
+
+// ── Init ──
+loadSettings();
+</script>
+</body>
+</html>
