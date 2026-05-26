@@ -840,81 +840,81 @@ body::after{
           <input type="text" placeholder="🔍  Buscar canal...">
         </div>
         <div class="cat-tabs">
-          <div class="cat-tab active">Todos</div>
-          <div class="cat-tab">Abertos</div>
-          <div class="cat-tab">Esportes</div>
-          <div class="cat-tab">Notícias</div>
-          <div class="cat-tab">Filmes</div>
-          <div class="cat-tab">Kids</div>
+          <div class="cat-tab active" data-g="Todos">Todos</div>
+          <div class="cat-tab" data-g="Abertos">Abertos</div>
+          <div class="cat-tab" data-g="Esportes">Esportes</div>
+          <div class="cat-tab" data-g="Notícias">Notícias</div>
+          <div class="cat-tab" data-g="Filmes">Filmes</div>
+          <div class="cat-tab" data-g="Kids">Kids</div>
         </div>
         <div class="channel-list">
-          <div class="ch-item active" onclick="selectChannel(this,'Globo HD','Jornal Nacional')">
+          <div class="ch-item active" data-group="Abertos" onclick="selectChannel(this,'Globo HD','Jornal Nacional')">
             <div class="ch-num">04</div>
             <div class="ch-logo">🌐</div>
             <div class="ch-details"><div class="ch-name">Globo HD</div><div class="ch-prog">Jornal Nacional</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'Record HD','Cidade Alerta')">
+          <div class="ch-item" data-group="Abertos" onclick="selectChannel(this,'Record HD','Cidade Alerta')">
             <div class="ch-num">07</div>
             <div class="ch-logo">📡</div>
             <div class="ch-details"><div class="ch-name">Record HD</div><div class="ch-prog">Cidade Alerta</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'SBT HD','Roda a Roda')">
+          <div class="ch-item" data-group="Abertos" onclick="selectChannel(this,'SBT HD','Roda a Roda')">
             <div class="ch-num">11</div>
             <div class="ch-logo">📺</div>
             <div class="ch-details"><div class="ch-name">SBT HD</div><div class="ch-prog">Roda a Roda</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'CNN Brasil','Ao Vivo')">
+          <div class="ch-item" data-group="Notícias" onclick="selectChannel(this,'CNN Brasil','Ao Vivo')">
             <div class="ch-num">12</div>
             <div class="ch-logo">📰</div>
             <div class="ch-details"><div class="ch-name">CNN Brasil</div><div class="ch-prog">Ao Vivo</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'ESPN HD','Futebol ao Vivo')">
+          <div class="ch-item" data-group="Esportes" onclick="selectChannel(this,'ESPN HD','Futebol ao Vivo')">
             <div class="ch-num">14</div>
             <div class="ch-logo">⚽</div>
             <div class="ch-details"><div class="ch-name">ESPN HD</div><div class="ch-prog">Futebol ao Vivo</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'SporTV 2','Tênis AO VIVO')">
+          <div class="ch-item" data-group="Esportes" onclick="selectChannel(this,'SporTV 2','Tênis AO VIVO')">
             <div class="ch-num">23</div>
             <div class="ch-logo">🏆</div>
             <div class="ch-details"><div class="ch-name">SporTV 2</div><div class="ch-prog">Tênis AO VIVO</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'MTV HD','Top 40')">
+          <div class="ch-item" data-group="Música" onclick="selectChannel(this,'MTV HD','Top 40')">
             <div class="ch-num">31</div>
             <div class="ch-logo">🎸</div>
             <div class="ch-details"><div class="ch-name">MTV HD</div><div class="ch-prog">Top 40</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'HBO Max','The Last of Us')">
+          <div class="ch-item" data-group="Filmes" onclick="selectChannel(this,'HBO Max','The Last of Us')">
             <div class="ch-num">44</div>
             <div class="ch-logo">🎭</div>
             <div class="ch-details"><div class="ch-name">HBO Max</div><div class="ch-prog">The Last of Us</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'Discovery','Caçadores de Mitos')">
+          <div class="ch-item" data-group="Filmes" onclick="selectChannel(this,'Discovery','Caçadores de Mitos')">
             <div class="ch-num">17</div>
             <div class="ch-logo">🌍</div>
             <div class="ch-details"><div class="ch-name">Discovery</div><div class="ch-prog">Caçadores de Mitos</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'Nick Jr','Patrulha Canina')">
+          <div class="ch-item" data-group="Kids" onclick="selectChannel(this,'Nick Jr','Patrulha Canina')">
             <div class="ch-num">55</div>
             <div class="ch-logo">🐾</div>
             <div class="ch-details"><div class="ch-name">Nick Jr</div><div class="ch-prog">Patrulha Canina</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'Band HD','Programa do Ratinho')">
+          <div class="ch-item" data-group="Abertos" onclick="selectChannel(this,'Band HD','Programa do Ratinho')">
             <div class="ch-num">13</div>
             <div class="ch-logo">📻</div>
             <div class="ch-details"><div class="ch-name">Band HD</div><div class="ch-prog">Programa do Ratinho</div></div>
             <div class="ch-live"></div>
           </div>
-          <div class="ch-item" onclick="selectChannel(this,'Fox Sports','NBA AO VIVO')">
+          <div class="ch-item" data-group="Esportes" onclick="selectChannel(this,'Fox Sports','NBA AO VIVO')">
             <div class="ch-num">29</div>
             <div class="ch-logo">🏀</div>
             <div class="ch-details"><div class="ch-name">Fox Sports</div><div class="ch-prog">NBA AO VIVO</div></div>
@@ -1106,589 +1106,456 @@ body::after{
 </div><!-- /main -->
 </div><!-- /app -->
 <script>
-// ==============================================
-// PJ PLAY — Script principal (reescrito limpo)
-// ==============================================
+// PJ PLAY v2 - script limpo
+var _ch = [];       // todos canais
+var _fil = [];      // canais filtrados
+var _hls = null;    // player HLS atual
 
-// ---------- ESTADO ----------
-var allChannels = [];
-var filteredChannels = [];
-var currentPlayer = null;
-
-// ---------- NAV ----------
-function showSection(id, tabEl) {
-  var sections = document.querySelectorAll('.section');
-  for (var i = 0; i < sections.length; i++) sections[i].classList.remove('active');
-  var tabs = document.querySelectorAll('.nav-tab');
-  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+// NAV
+function showSection(id, t) {
+  [].forEach.call(document.querySelectorAll('.section'), function(s){ s.classList.remove('active'); });
+  [].forEach.call(document.querySelectorAll('.nav-tab'), function(x){ x.classList.remove('active'); });
   var sec = document.getElementById('sec-' + id);
   if (sec) sec.classList.add('active');
-  if (tabEl) tabEl.classList.add('active');
+  if (t) t.classList.add('active');
 }
 
-// ---------- CONTA ----------
-function toggleAccount() {
-  document.getElementById('accPanel').classList.toggle('open');
-}
+// PAINEL CONTA
+function toggleAccount() { document.getElementById('accPanel').classList.toggle('open'); }
 function closeAccount(e) {
-  var panel = document.getElementById('accPanel');
-  if (!panel) return;
-  if (e.target.closest && !e.target.closest('.acc-panel') && !e.target.closest('.btn-account')) {
-    panel.classList.remove('open');
-  }
+  if (!e.target.closest('.acc-panel') && !e.target.closest('.btn-account'))
+    document.getElementById('accPanel').classList.remove('open');
 }
 
-// ---------- INDEXEDDB ----------
-var DB_NAME = 'pjplay2';
-var db = null;
-
-function openDB(callback) {
-  if (db) { callback(db); return; }
-  var req = indexedDB.open(DB_NAME, 1);
-  req.onupgradeneeded = function(e) {
-    var d = e.target.result;
-    if (!d.objectStoreNames.contains('channels')) d.createObjectStore('channels', {keyPath:'idx'});
-    if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings');
+// STATUS
+function status(type, msg) {
+  var el = document.getElementById('m3uStatus');
+  if (!el) return;
+  el.innerHTML = msg;
+  el.style.display = 'block';
+  var colors = {
+    ok:      ['rgba(0,200,248,.08)','rgba(0,200,248,.2)','var(--cyan)'],
+    error:   ['rgba(255,80,80,.1)','rgba(255,80,80,.2)','#ff8888'],
+    loading: ['rgba(240,165,0,.08)','rgba(240,165,0,.2)','var(--accent)']
   };
-  req.onsuccess = function(e) { db = e.target.result; callback(db); };
-  req.onerror = function() { callback(null); };
+  var c = colors[type] || colors.loading;
+  el.style.background = c[0];
+  el.style.border = '1px solid ' + c[1];
+  el.style.color = c[2];
 }
 
-function dbSaveChannels(channels, done) {
-  openDB(function(d) {
-    if (!d) { done && done(); return; }
-    var tx = d.transaction('channels', 'readwrite');
-    var store = tx.objectStore('channels');
-    store.clear();
-    for (var i = 0; i < channels.length; i++) {
-      store.put({idx: i, name: channels[i].name, group: channels[i].group, logo: channels[i].logo, url: channels[i].url});
-    }
-    tx.oncomplete = function() { done && done(); };
-    tx.onerror = function() { done && done(); };
-  });
-}
-
-function dbLoadChannels(done) {
-  openDB(function(d) {
-    if (!d) { done([]); return; }
-    var tx = d.transaction('channels', 'readonly');
-    var req = tx.objectStore('channels').getAll();
-    req.onsuccess = function() {
-      var rows = req.result || [];
-      rows.sort(function(a,b){ return a.idx - b.idx; });
-      done(rows);
-    };
-    req.onerror = function() { done([]); };
-  });
-}
-
-function dbSaveSetting(key, val) {
-  openDB(function(d) {
-    if (!d) { try { localStorage.setItem(key, val); } catch(e){} return; }
-    var tx = d.transaction('settings', 'readwrite');
-    tx.objectStore('settings').put(val, key);
-  });
-}
-
-function dbLoadSetting(key, done) {
-  openDB(function(d) {
-    if (!d) { done(localStorage.getItem(key) || ''); return; }
-    var tx = d.transaction('settings', 'readonly');
-    var req = tx.objectStore('settings').get(key);
-    req.onsuccess = function() { done(req.result || ''); };
-    req.onerror = function() { done(''); };
-  });
-}
-
-// ---------- M3U PARSER ----------
-function parseM3U(text) {
-  var lines = text.split(/\r?\n/);
-  var channels = [];
-  var cur = null;
+// PARSE M3U
+function parseM3U(txt) {
+  var lines = txt.split(/\r?\n/);
+  var out = [], cur = null;
   for (var i = 0; i < lines.length; i++) {
-    var line = lines[i].trim();
-    if (!line) continue;
-    if (line.indexOf('#EXTINF') === 0) {
-      cur = {name:'', group:'Geral', logo:'', url:''};
-      var ci = line.lastIndexOf(',');
-      if (ci !== -1) cur.name = line.slice(ci + 1).trim();
-      var gm = line.match(/group-title="([^"]*)"/i);
+    var ln = lines[i].trim();
+    if (!ln) continue;
+    if (ln.indexOf('#EXTINF') === 0) {
+      cur = { name:'', group:'Geral', logo:'', url:'' };
+      var ci = ln.lastIndexOf(',');
+      if (ci >= 0) cur.name = ln.slice(ci+1).trim();
+      var gm = ln.match(/group-title="([^"]*)"/i);
       if (gm) cur.group = gm[1].trim() || 'Geral';
-      var lm = line.match(/tvg-logo="([^"]*)"/i);
+      var lm = ln.match(/tvg-logo="([^"]*)"/i);
       if (lm) cur.logo = lm[1].trim();
-    } else if (/^https?:\/\/|^rtmp|^rtsp/.test(line)) {
-      if (cur) {
-        cur.url = line;
-        if (cur.name) channels.push(cur);
-        cur = null;
-      }
+    } else if (/^https?:\/\/|^rtmp|^rtsp/.test(ln)) {
+      if (cur) { cur.url = ln; if (cur.name) out.push(cur); cur = null; }
     }
   }
-  return channels;
+  return out;
 }
 
-// ---------- PROCESSAR M3U ----------
-function processM3UText(text) {
-  showStatus('loading', '⏳ Processando lista...');
+// PROCESSAR TEXTO M3U
+function processM3U(txt) {
+  status('loading', 'Processando...');
   setTimeout(function() {
-    var channels = parseM3U(text);
-    if (!channels.length) {
-      showStatus('error', '❌ Nenhum canal encontrado. Verifique o conteúdo M3U.');
-      return;
-    }
-    allChannels = channels;
-    filteredChannels = channels;
-    dbSaveChannels(channels, function() {
-      showStatus('ok', '✅ ' + channels.length + ' canais salvos localmente!');
-    });
-    applyToUI();
-    showStatus('ok', '✅ ' + channels.length + ' canais carregados!');
-    updateChannelsInfo(channels);
-  }, 30);
+    var chs = parseM3U(txt);
+    if (!chs.length) { status('error', 'Nenhum canal encontrado. Verifique o M3U.'); return; }
+    _ch = chs; _fil = chs.slice();
+    salvarDB(chs);
+    buildUI();
+    status('ok', chs.length + ' canais carregados!');
+    infoCanais(chs);
+  }, 20);
 }
 
-function updateChannelsInfo(channels) {
-  var grps = [];
-  var seen = {};
-  for (var i = 0; i < channels.length; i++) {
-    if (!seen[channels[i].group]) { seen[channels[i].group] = true; grps.push(channels[i].group); }
-  }
+function infoCanais(chs) {
+  var gs = [], seen = {};
+  for (var i = 0; i < chs.length; i++) { if (!seen[chs[i].group]) { seen[chs[i].group]=1; gs.push(chs[i].group); } }
   var el = document.getElementById('channelsLoaded');
   if (el) el.style.display = 'block';
   var info = document.getElementById('channelsInfo');
-  if (info) {
-    var html = '<strong style="font-size:1.1rem;">' + channels.length + '</strong> canais em <strong>' + grps.length + '</strong> grupos<br>';
-    for (var i = 0; i < Math.min(grps.length, 8); i++) {
-      html += '<span style="background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.2);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;display:inline-block;">' + escH(grps[i]) + '</span>';
-    }
-    if (grps.length > 8) html += '<span style="font-size:.75rem;color:var(--text-dim)"> +' + (grps.length-8) + ' mais</span>';
-    info.innerHTML = html;
-  }
+  if (!info) return;
+  var h = '<strong>' + chs.length + '</strong> canais em <strong>' + gs.length + '</strong> grupos<br>';
+  for (var i = 0; i < Math.min(gs.length,8); i++)
+    h += '<span style="background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.2);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;display:inline-block;">' + hesc(gs[i]) + '</span>';
+  if (gs.length > 8) h += ' <span style="font-size:.75rem;color:var(--text-dim)">+' + (gs.length-8) + ' mais</span>';
+  info.innerHTML = h;
 }
 
-// ---------- CARREGAR (COLAR) ----------
+// COLAR
 function loadFromPaste() {
-  var area = document.getElementById('m3uPasteArea');
-  var text = area ? area.value.trim() : '';
-  if (!text) { showStatus('error', '❌ Cole o conteúdo M3U no campo acima.'); return; }
-  if (text.indexOf('#EXTINF') === -1 && text.indexOf('#EXTM3U') === -1) {
-    showStatus('error', '❌ Não parece ser M3U válido.'); return;
-  }
-  processM3UText(text);
+  var a = document.getElementById('m3uPasteArea');
+  var t = a ? a.value.trim() : '';
+  if (!t) { status('error', 'Cole o conteudo M3U acima.'); return; }
+  if (t.indexOf('#EXTINF') < 0 && t.indexOf('#EXTM3U') < 0) { status('error', 'Conteudo invalido.'); return; }
+  processM3U(t);
 }
 
-// ---------- CARREGAR (ARQUIVO) ----------
+// ARQUIVO
 document.getElementById('m3uFileInput').addEventListener('change', function() {
-  var file = this.files[0];
-  if (!file) return;
-  var label = document.getElementById('fileNameLabel');
-  if (label) label.textContent = file.name;
-  showStatus('loading', '⏳ Lendo arquivo ' + file.name + '...');
+  var f = this.files[0]; if (!f) return;
+  var lbl = document.getElementById('fileNameLabel');
+  if (lbl) lbl.textContent = f.name;
+  status('loading', 'Lendo ' + f.name + '...');
   var r = new FileReader();
-  r.onload = function(e) { processM3UText(e.target.result); };
-  r.onerror = function() { showStatus('error', '❌ Erro ao ler arquivo.'); };
-  r.readAsText(file, 'utf-8');
+  r.onload = function(e) { processM3U(e.target.result); };
+  r.onerror = function() { status('error', 'Erro ao ler arquivo.'); };
+  r.readAsText(f, 'utf-8');
 });
 
-// ---------- CARREGAR (URL) ----------
-var PROXIES = [
+// URL + PROXIES
+var PROX = [
   function(u){ return u; },
   function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); },
   function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
   function(u){ return 'https://thingproxy.freeboard.io/fetch/' + u; }
 ];
-
 function handleLoadBtn() {
-  var urlEl = document.querySelector('.setting-input[data-key="m3u"]');
-  var url = urlEl ? urlEl.value.trim() : '';
-  if (!url) { showStatus('error', '❌ Insira a URL M3U primeiro.'); return; }
-  tryProxy(url, 0);
+  var el = document.querySelector('.setting-input[data-key="m3u"]');
+  var url = el ? el.value.trim() : '';
+  if (!url) { status('error', 'Insira a URL M3U.'); return; }
+  tentarProxy(url, 0);
 }
-
-function tryProxy(url, i) {
-  if (i >= PROXIES.length) {
-    showStatus('error', '❌ Todos os proxies falharam.<br>👉 Abra a URL no navegador → Ctrl+A → Ctrl+C → cole no campo acima.');
+function tentarProxy(url, i) {
+  if (i >= PROX.length) {
+    status('error', 'Proxies falharam. Cole o conteudo manualmente.');
     return;
   }
-  showStatus('loading', '⏳ Tentativa ' + (i+1) + ' de ' + PROXIES.length + '...');
-  var proxied = PROXIES[i](url);
-  var ctrl = new AbortController();
-  var tid = setTimeout(function(){ ctrl.abort(); }, 15000);
-  fetch(proxied, {signal: ctrl.signal})
-    .then(function(res) {
-      clearTimeout(tid);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.text();
-    })
-    .then(function(text) {
-      if (text.indexOf('#EXTINF') === -1 && text.indexOf('#EXTM3U') === -1) throw new Error('Não é M3U');
-      processM3UText(text);
-    })
-    .catch(function() {
-      clearTimeout(tid);
-      tryProxy(url, i + 1);
-    });
+  status('loading', 'Tentativa ' + (i+1) + '/' + PROX.length + '...');
+  fetch(PROX[i](url)).then(function(r) {
+    if (!r.ok) throw 0;
+    return r.text();
+  }).then(function(t) {
+    if (t.indexOf('#EXTINF') < 0 && t.indexOf('#EXTM3U') < 0) throw 0;
+    processM3U(t);
+  }).catch(function() { tentarProxy(url, i+1); });
 }
 
-// ---------- APLICAR NA LIVE TV ----------
-function applyToUI() {
-  if (!allChannels.length) return;
-
-  // Montar abas de categorias
-  var groups = ['Todos'];
-  var seenG = {};
-  for (var i = 0; i < allChannels.length; i++) {
-    var g = allChannels[i].group;
-    if (!seenG[g]) { seenG[g] = true; groups.push(g); }
+// BUILD UI (abas + lista)
+function buildUI() {
+  if (!_ch.length) return;
+  // Abas de grupos
+  var gs = ['Todos'], seen = {};
+  for (var i = 0; i < _ch.length; i++) {
+    var g = _ch[i].group;
+    if (!seen[g]) { seen[g]=1; gs.push(g); }
   }
-  groups = groups.slice(0, 20);
-
-  var catTabsEl = document.querySelector('.cat-tabs');
-  catTabsEl.innerHTML = '';
-  for (var i = 0; i < groups.length; i++) {
+  gs = gs.slice(0,20);
+  var tabsEl = document.querySelector('.cat-tabs');
+  tabsEl.innerHTML = '';
+  for (var i = 0; i < gs.length; i++) {
     var tab = document.createElement('div');
-    tab.className = 'cat-tab' + (i === 0 ? ' active' : '');
-    tab.textContent = groups[i].length > 12 ? groups[i].slice(0,12)+'…' : groups[i];
-    tab.setAttribute('data-group', groups[i]);
-    tab.addEventListener('click', onCatTabClick);
-    catTabsEl.appendChild(tab);
+    tab.className = 'cat-tab' + (i===0?' active':'');
+    tab.textContent = gs[i].length > 13 ? gs[i].slice(0,13)+'...' : gs[i];
+    tab.setAttribute('data-g', gs[i]);
+    tab.addEventListener('click', clicaAba);
+    tabsEl.appendChild(tab);
   }
-
-  // Atualizar stat de canais
-  var statVal = document.querySelector('.stat-info .val');
-  if (statVal) statVal.textContent = allChannels.length;
-
+  // Stat
+  var sv = document.querySelector('.stat-info .val');
+  if (sv) sv.textContent = _ch.length;
   // Renderizar lista
-  filteredChannels = allChannels.slice();
-  renderList(filteredChannels);
+  renderLista(_ch);
 }
 
-function onCatTabClick() {
-  var tabs = document.querySelectorAll('.cat-tab');
-  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+function clicaAba() {
+  [].forEach.call(document.querySelectorAll('.cat-tab'), function(t){ t.classList.remove('active'); });
   this.classList.add('active');
-  var group = this.getAttribute('data-group');
-  if (group === 'Todos') {
-    filteredChannels = allChannels.slice();
+  var g = this.getAttribute('data-g');
+  if (_ch.length) {
+    // Canais do M3U carregados: filtra via _ch
+    _fil = g === 'Todos' ? _ch.slice() : _ch.filter(function(c){ return c.group === g; });
+    renderLista(_fil);
   } else {
-    filteredChannels = [];
-    for (var i = 0; i < allChannels.length; i++) {
-      if (allChannels[i].group === group) filteredChannels.push(allChannels[i]);
-    }
+    // Canais estáticos do HTML: filtra via data-group
+    [].forEach.call(document.querySelectorAll('.channel-list .ch-item'), function(item) {
+      var ig = item.getAttribute('data-group') || '';
+      item.style.display = (g === 'Todos' || ig === g) ? '' : 'none';
+    });
   }
-  renderList(filteredChannels);
 }
 
-// ---------- RENDERIZAR LISTA (lotes, sem travar) ----------
-function renderList(channels) {
+function renderLista(chs) {
   var listEl = document.querySelector('.channel-list');
   listEl.innerHTML = '';
-  if (!channels.length) {
-    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:.8rem;">Nenhum canal encontrado</div>';
+  if (!chs.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim)">Nenhum canal</div>';
     return;
   }
-  var BATCH = 80;
-  var offset = 0;
-
-  function addBatch() {
+  var i = 0;
+  function lote() {
     var frag = document.createDocumentFragment();
-    var end = Math.min(offset + BATCH, channels.length);
-    for (var i = offset; i < end; i++) {
-      frag.appendChild(makeChannelEl(channels[i], i));
-    }
+    var fim = Math.min(i + 80, chs.length);
+    for (; i < fim; i++) frag.appendChild(criarItem(chs[i], i));
     listEl.appendChild(frag);
-    offset = end;
-    if (offset < channels.length) setTimeout(addBatch, 16);
+    if (i < chs.length) setTimeout(lote, 16);
   }
-  addBatch();
+  lote();
 }
 
-function makeChannelEl(ch, idx) {
+function criarItem(ch, idx) {
   var el = document.createElement('div');
   el.className = 'ch-item';
-  var ico = channelIcon(ch.group);
-  var logoHtml;
-  if (ch.logo) {
-    logoHtml = '<img src="' + escA(ch.logo) + '" onerror="this.style.display=\'none\'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">';
-  } else {
-    logoHtml = ico;
-  }
+  var ico = iconeCh(ch.group);
+  var logo = ch.logo
+    ? '<img src="' + aesc(ch.logo) + '" onerror="this.style.display=\'none\'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">'
+    : ico;
   el.innerHTML =
     '<div class="ch-num">' + String(idx+1).padStart(2,'0') + '</div>' +
-    '<div class="ch-logo">' + logoHtml + '</div>' +
-    '<div class="ch-details">' +
-      '<div class="ch-name">' + escH(ch.name) + '</div>' +
-      '<div class="ch-prog">' + escH(ch.group) + '</div>' +
-    '</div>' +
+    '<div class="ch-logo">' + logo + '</div>' +
+    '<div class="ch-details"><div class="ch-name">' + hesc(ch.name) + '</div><div class="ch-prog">' + hesc(ch.group) + '</div></div>' +
     '<div class="ch-live"></div>';
-  // Guardar dados no elemento
-  el._chData = ch;
-  el.addEventListener('click', function() { selectCh(el); });
+  el._ch = ch;
+  el.addEventListener('click', function(){ selecionarCh(el); });
   return el;
 }
 
-// ---------- SELEÇÃO E PLAYER ----------
-function selectCh(el) {
-  var items = document.querySelectorAll('.ch-item');
-  for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+// PLAYER
+function selecionarCh(el) {
+  [].forEach.call(document.querySelectorAll('.ch-item'), function(x){ x.classList.remove('active'); });
   el.classList.add('active');
-
-  var ch = el._chData;
-  var name = ch ? ch.name : (el.getAttribute('data-name') || '');
-  var url  = ch ? ch.url  : (el.getAttribute('data-url')  || '');
-  var grp  = ch ? ch.group: '';
-
-  document.getElementById('playerChName').textContent = name || 'Canal';
-  document.getElementById('playerProg').textContent   = (grp || '') + ' • Ao Vivo';
-
-  if (url) {
-    playStream(url, name);
-  }
+  var ch = el._ch || {};
+  document.getElementById('playerChName').textContent = ch.name || 'Canal';
+  document.getElementById('playerProg').textContent = (ch.group || '') + ' - Ao Vivo';
+  if (ch.url) tocarStream(ch.url, ch.name);
 }
 
-// Compatibilidade com canais estáticos do HTML (onclick antigo)
-function selectChannel(el, name, urlOrProg, group) {
-  var items = document.querySelectorAll('.ch-item');
-  for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+// Compatibilidade canais estaticos HTML
+function selectChannel(el, name, prog, group) {
+  [].forEach.call(document.querySelectorAll('.ch-item'), function(x){ x.classList.remove('active'); });
   el.classList.add('active');
-  document.getElementById('playerChName').textContent = name || 'Canal';
-  document.getElementById('playerProg').textContent   = (group || urlOrProg || '') + ' • Ao Vivo';
-  // canais estáticos não têm URL real, apenas exibem nome
-}
-
-function playStream(url, name) {
+  document.getElementById('playerChName').textContent = name || '';
+  document.getElementById('playerProg').textContent = (group || prog || '') + ' - Ao Vivo';
+  // Limpa player anterior
   var screen = document.querySelector('.player-screen');
-  // Para player anterior
-  if (currentPlayer) {
-    try { currentPlayer.destroy(); } catch(e){}
-    currentPlayer = null;
-  }
-  // Remove vídeos e erros anteriores
-  var old = screen.querySelectorAll('video,.player-err');
-  for (var i = 0; i < old.length; i++) old[i].remove();
+  if (_hls) { try { _hls.destroy(); } catch(e){} _hls = null; }
+  [].forEach.call(screen.querySelectorAll('video,.player-err'), function(e){ e.remove(); });
+  var logo = screen.querySelector('.player-logo-bg');
+  // Mostra mensagem pedindo para carregar M3U com a URL do canal selecionado
+  var old = screen.querySelector('.player-sem-url');
+  if (old) old.remove();
+  if (logo) logo.style.display = '';
+  var d = document.createElement('div');
+  d.className = 'player-sem-url';
+  d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(0,100,200,.12);border:1px solid rgba(0,150,255,.25);border-radius:8px;padding:10px 14px;font-size:.78rem;color:var(--cyan);z-index:20;line-height:1.6;text-align:center;';
+  d.innerHTML = '📡 Canal selecionado: <strong>' + hesc(name||'') + '</strong><br><span style="color:var(--text-dim);font-size:.72rem;">Carregue sua lista M3U em <strong style="color:var(--silver)">Configurações</strong> para assistir</span>';
+  screen.appendChild(d);
+}
 
-  // Esconde logo
+function tocarStream(url, name) {
+  var screen = document.querySelector('.player-screen');
+  if (_hls) { try { _hls.destroy(); } catch(e){} _hls = null; }
+  [].forEach.call(screen.querySelectorAll('video,.player-err'), function(e){ e.remove(); });
   var logo = screen.querySelector('.player-logo-bg');
   if (logo) logo.style.display = 'none';
-
-  var video = document.createElement('video');
-  video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
-  video.controls = true;
-  video.autoplay  = true;
-  video.playsInline = true;
-  screen.appendChild(video);
-
-  var isHLS = /\.m3u8?(\?|$)/i.test(url)
-    || url.indexOf('type=m3u') !== -1
-    || url.indexOf('output=mpegts') !== -1
-    || url.indexOf('/live/') !== -1;
-
+  var v = document.createElement('video');
+  v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
+  v.controls = true; v.autoplay = true; v.playsInline = true;
+  screen.appendChild(v);
+  var isHLS = /\.m3u8?(\?|$)/i.test(url) || url.indexOf('type=m3u')>=0 || url.indexOf('output=mpegts')>=0 || url.indexOf('/live/')>=0;
   if (isHLS && window.Hls && window.Hls.isSupported()) {
-    var hls = new window.Hls({enableWorker:false, lowLatencyMode:true, maxBufferLength:30});
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(window.Hls.Events.MANIFEST_PARSED, function() {
-      video.play().catch(function(){});
-    });
-    hls.on(window.Hls.Events.ERROR, function(ev, data) {
-      if (data.fatal) showPlayerErr(screen, name, url);
-    });
-    currentPlayer = hls;
-  } else {
-    video.src = url;
-    video.play().catch(function(){});
-  }
-
-  video.onerror = function() { showPlayerErr(screen, name, url); };
+    var h = new window.Hls({ enableWorker:false, lowLatencyMode:true });
+    h.loadSource(url); h.attachMedia(v);
+    h.on(window.Hls.Events.MANIFEST_PARSED, function(){ v.play().catch(function(){}); });
+    h.on(window.Hls.Events.ERROR, function(ev,d){ if(d.fatal) erroPlayer(screen,name,url); });
+    _hls = h;
+  } else { v.src = url; v.play().catch(function(){}); }
+  v.onerror = function(){ erroPlayer(screen, name, url); };
 }
 
-function showPlayerErr(screen, name, url) {
-  var old = screen.querySelectorAll('video');
-  for (var i = 0; i < old.length; i++) old[i].remove();
+function erroPlayer(screen, name, url) {
+  [].forEach.call(screen.querySelectorAll('video'), function(e){ e.remove(); });
   var logo = screen.querySelector('.player-logo-bg');
   if (logo) logo.style.display = '';
   var d = document.createElement('div');
   d.className = 'player-err';
   d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,50,50,.12);border:1px solid rgba(255,80,80,.25);border-radius:8px;padding:10px 14px;font-size:.74rem;color:#ff8888;z-index:20;line-height:1.6;';
-  d.innerHTML = '⚠️ Stream offline ou bloqueado: <strong>' + escH(name) + '</strong>';
-  if (url) d.innerHTML += '<br><a href="' + escA(url) + '" target="_blank" style="color:var(--cyan);">Abrir diretamente ↗</a>';
+  d.innerHTML = 'Stream offline: <strong>' + hesc(name||'') + '</strong>';
+  if (url) d.innerHTML += '<br><a href="' + aesc(url) + '" target="_blank" style="color:var(--cyan)">Abrir direto</a>';
   screen.appendChild(d);
 }
 
-// ---------- BUSCA ----------
+// INIT ABAS ESTATICAS — eventos nas cat-tabs do HTML antes de carregar M3U
+[].forEach.call(document.querySelectorAll('.cat-tab'), function(tab) {
+  tab.addEventListener('click', clicaAba);
+});
+
+// BUSCA
 document.querySelector('.sidebar-search input').addEventListener('input', function() {
-  var q = this.value.toLowerCase().trim();
-  var src = allChannels;
-  if (q) {
-    src = [];
-    for (var i = 0; i < allChannels.length; i++) {
-      if (allChannels[i].name.toLowerCase().indexOf(q) !== -1 ||
-          allChannels[i].group.toLowerCase().indexOf(q) !== -1) {
-        src.push(allChannels[i]);
-      }
-    }
-  }
-  filteredChannels = src;
-  renderList(filteredChannels);
-});
-
-// ---------- STATUS ----------
-function showStatus(type, msg) {
-  var el = document.getElementById('m3uStatus');
-  if (!el) return;
-  el.innerHTML = msg;
-  el.style.display = 'block';
-  if (type === 'ok') {
-    el.style.background = 'rgba(0,200,248,.08)';
-    el.style.border = '1px solid rgba(0,200,248,.2)';
-    el.style.color = 'var(--cyan)';
-  } else if (type === 'error') {
-    el.style.background = 'rgba(255,80,80,.1)';
-    el.style.border = '1px solid rgba(255,80,80,.2)';
-    el.style.color = '#ff8888';
+  var q = this.value.toLowerCase();
+  if (_ch.length) {
+    // M3U carregado: filtra _ch
+    _fil = !q ? _ch.slice() : _ch.filter(function(c){ return c.name.toLowerCase().indexOf(q)>=0 || c.group.toLowerCase().indexOf(q)>=0; });
+    renderLista(_fil);
   } else {
-    el.style.background = 'rgba(240,165,0,.08)';
-    el.style.border = '1px solid rgba(240,165,0,.2)';
-    el.style.color = 'var(--accent)';
+    // Itens estáticos: filtra por nome visível
+    [].forEach.call(document.querySelectorAll('.channel-list .ch-item'), function(item) {
+      var nome = (item.querySelector('.ch-name')||{}).textContent || '';
+      item.style.display = (!q || nome.toLowerCase().indexOf(q)>=0) ? '' : 'none';
+    });
   }
-}
-
-// ---------- SETTINGS — SALVAR ----------
-document.querySelector('.btn-save').addEventListener('click', function() {
-  var urlEl = document.querySelector('.setting-input[data-key="m3u"]');
-  var url = urlEl ? urlEl.value.trim() : '';
-  dbSaveSetting('pjplay_m3u', url);
-  showStatus('ok', '✅ Configurações salvas!');
-  setTimeout(function() {
-    var el = document.getElementById('m3uStatus');
-    if (el) el.style.display = 'none';
-  }, 3000);
 });
 
-// ---------- INIT ----------
-function init() {
-  // Restaurar URL salva
-  dbLoadSetting('pjplay_m3u', function(url) {
-    var urlEl = document.querySelector('.setting-input[data-key="m3u"]');
-    if (urlEl && url) urlEl.value = url;
+// SALVAR CONFIG
+document.querySelector('.btn-save').addEventListener('click', function() {
+  var el = document.querySelector('.setting-input[data-key="m3u"]');
+  var url = el ? el.value.trim() : '';
+  salvarConf('pjplay_m3u', url);
+  status('ok', 'Configuracoes salvas!');
+  setTimeout(function(){ document.getElementById('m3uStatus').style.display='none'; }, 2500);
+});
+
+// FILTER CHIPS VOD
+[].forEach.call(document.querySelectorAll('.vod-filters'), function(cont) {
+  [].forEach.call(cont.querySelectorAll('.filter-chip'), function(chip) {
+    chip.addEventListener('click', function() {
+      [].forEach.call(cont.querySelectorAll('.filter-chip'), function(c){ c.classList.remove('active'); });
+      this.classList.add('active');
+    });
   });
+});
 
-  // Restaurar canais salvos
-  dbLoadChannels(function(saved) {
-    if (saved && saved.length) {
-      allChannels = saved;
-      filteredChannels = saved;
-      applyToUI();
-      showStatus('ok', '✅ ' + saved.length + ' canais restaurados.');
-      setTimeout(function() {
-        var el = document.getElementById('m3uStatus');
-        if (el) el.style.display = 'none';
-      }, 3000);
-      updateChannelsInfo(saved);
-    }
+// INDEXEDDB
+var _db = null;
+function abrirDB(cb) {
+  if (_db) { cb(_db); return; }
+  var req = indexedDB.open('pjplay3', 1);
+  req.onupgradeneeded = function(e) {
+    var d = e.target.result;
+    if (!d.objectStoreNames.contains('ch')) d.createObjectStore('ch', {keyPath:'i'});
+    if (!d.objectStoreNames.contains('cfg')) d.createObjectStore('cfg');
+  };
+  req.onsuccess = function(e) { _db = e.target.result; cb(_db); };
+  req.onerror = function() { cb(null); };
+}
+function salvarDB(chs) {
+  abrirDB(function(d) {
+    if (!d) return;
+    var tx = d.transaction('ch','readwrite');
+    var st = tx.objectStore('ch');
+    st.clear();
+    for (var i = 0; i < chs.length; i++) st.put({i:i, name:chs[i].name, group:chs[i].group, logo:chs[i].logo, url:chs[i].url});
+  });
+}
+function carregarDB(cb) {
+  abrirDB(function(d) {
+    if (!d) { cb([]); return; }
+    var req = d.transaction('ch','readonly').objectStore('ch').getAll();
+    req.onsuccess = function() {
+      var r = (req.result||[]).slice().sort(function(a,b){ return a.i-b.i; });
+      cb(r);
+    };
+    req.onerror = function() { cb([]); };
+  });
+}
+function salvarConf(k, v) {
+  abrirDB(function(d) {
+    if (!d) { try{localStorage.setItem(k,v);}catch(e){} return; }
+    d.transaction('cfg','readwrite').objectStore('cfg').put(v,k);
+  });
+}
+function carregarConf(k, cb) {
+  abrirDB(function(d) {
+    if (!d) { cb(localStorage.getItem(k)||''); return; }
+    var req = d.transaction('cfg','readonly').objectStore('cfg').get(k);
+    req.onsuccess = function() { cb(req.result||''); };
+    req.onerror = function() { cb(''); };
   });
 }
 
-// ---------- FILTER CHIPS VOD ----------
-var chipConts = document.querySelectorAll('.vod-filters');
-for (var ci = 0; ci < chipConts.length; ci++) {
-  (function(cont) {
-    var chips = cont.querySelectorAll('.filter-chip');
-    for (var k = 0; k < chips.length; k++) {
-      chips[k].addEventListener('click', function() {
-        var all = cont.querySelectorAll('.filter-chip');
-        for (var j = 0; j < all.length; j++) all[j].classList.remove('active');
-        this.classList.add('active');
-      });
-    }
-  })(chipConts[ci]);
-}
-
-// ---------- STATIC VOD ----------
-var movies = [
-  {t:'Duna: Parte 2',y:'2024',d:'2h46m',g:'Sci-Fi',bg:'135deg,#1a0a30,#3a1060',ico:'🪐',q:'4K'},
-  {t:'Oppenheimer',y:'2023',d:'3h0m',g:'Drama',bg:'135deg,#251505,#5a3010',ico:'💥',q:'4K'},
-  {t:'Barbie',y:'2023',d:'1h54m',g:'Comédia',bg:'135deg,#200515,#501035',ico:'💖',q:'HD'},
-  {t:'Pobres Criaturas',y:'2023',d:'2h21m',g:'Drama',bg:'135deg,#0a1025,#203060',ico:'🎭',q:'HD'},
-  {t:'Wonka',y:'2023',d:'1h56m',g:'Fantasia',bg:'135deg,#1a1000,#403000',ico:'🍫',q:'HD'},
-  {t:'Napoleon',y:'2023',d:'2h38m',g:'Histórico',bg:'135deg,#100a00,#302000',ico:'⚔️',q:'HD'},
-  {t:'Aquaman 2',y:'2023',d:'2h4m',g:'Ação',bg:'135deg,#001525,#003050',ico:'🌊',q:'4K'},
-  {t:'The Marvels',y:'2023',d:'1h45m',g:'Ação',bg:'135deg,#150025,#400060',ico:'🦸',q:'HD'},
-  {t:'Indiana Jones 5',y:'2023',d:'2h34m',g:'Aventura',bg:'135deg,#200800,#502000',ico:'🎩',q:'HD'},
-  {t:'Missão Impossível 7',y:'2023',d:'2h43m',g:'Ação',bg:'135deg,#0a1520,#203040',ico:'🕵️',q:'4K'},
-  {t:'Guardiões 3',y:'2023',d:'2h29m',g:'Ação',bg:'135deg,#0a0a30,#151560',ico:'🚀',q:'4K'},
-  {t:'Fast X',y:'2023',d:'2h21m',g:'Ação',bg:'135deg,#250505,#600010',ico:'🏎️',q:'HD'},
+// VOD ESTATICO
+var movies=[
+  {t:'Duna: Parte 2',y:'2024',d:'2h46m',g:'Sci-Fi',bg:'135deg,#1a0a30,#3a1060',i:'na',q:'4K'},
+  {t:'Oppenheimer',y:'2023',d:'3h0m',g:'Drama',bg:'135deg,#251505,#5a3010',i:'na',q:'4K'},
+  {t:'Barbie',y:'2023',d:'1h54m',g:'Comedia',bg:'135deg,#200515,#501035',i:'na',q:'HD'},
+  {t:'Pobres Criaturas',y:'2023',d:'2h21m',g:'Drama',bg:'135deg,#0a1025,#203060',i:'na',q:'HD'},
+  {t:'Wonka',y:'2023',d:'1h56m',g:'Fantasia',bg:'135deg,#1a1000,#403000',i:'na',q:'HD'},
+  {t:'Napoleon',y:'2023',d:'2h38m',g:'Historico',bg:'135deg,#100a00,#302000',i:'na',q:'HD'},
+  {t:'Aquaman 2',y:'2023',d:'2h4m',g:'Acao',bg:'135deg,#001525,#003050',i:'na',q:'4K'},
+  {t:'The Marvels',y:'2023',d:'1h45m',g:'Acao',bg:'135deg,#150025,#400060',i:'na',q:'HD'},
+  {t:'Indiana Jones 5',y:'2023',d:'2h34m',g:'Aventura',bg:'135deg,#200800,#502000',i:'na',q:'HD'},
+  {t:'Missao Impossivel 7',y:'2023',d:'2h43m',g:'Acao',bg:'135deg,#0a1520,#203040',i:'na',q:'4K'},
+  {t:'Guardioes 3',y:'2023',d:'2h29m',g:'Acao',bg:'135deg,#0a0a30,#151560',i:'na',q:'4K'},
+  {t:'Fast X',y:'2023',d:'2h21m',g:'Acao',bg:'135deg,#250505,#600010',i:'na',q:'HD'}
 ];
-var mg = document.getElementById('moviesGrid');
-for (var i = 0; i < movies.length; i++) {
-  var m = movies[i];
-  mg.innerHTML += '<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+m.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+m.ico+'</span><div class="play-overlay">▶</div><span class="vod-label new">'+m.q+'</span></div><div class="vod-info"><div class="vod-title">'+m.t+'</div><div class="vod-meta">'+m.y+' • '+m.d+' • '+m.g+'</div></div></div>';
-}
+var icons=['🪐','💥','💖','🎭','🍫','⚔️','🌊','🦸','🎩','🕵️','🚀','🏎️'];
+var mg=document.getElementById('moviesGrid');
+for(var i=0;i<movies.length;i++){var m=movies[i];mg.innerHTML+='<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+m.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+icons[i]+'</span><div class="play-overlay">&#9654;</div><span class="vod-label new">'+m.q+'</span></div><div class="vod-info"><div class="vod-title">'+m.t+'</div><div class="vod-meta">'+m.y+' &bull; '+m.d+' &bull; '+m.g+'</div></div></div>';}
 
-var series = [
-  {t:'The Last of Us',s:'T2',g:'Drama/Terror',bg:'135deg,#0a2010,#1a5030',ico:'🍄'},
-  {t:'House of Dragon',s:'T2',g:'Fantasia',bg:'135deg,#200a00,#500000',ico:'🐉'},
-  {t:'Succession',s:'T4',g:'Drama',bg:'135deg,#100a20,#301060',ico:'💰'},
-  {t:'Andor',s:'T2',g:'Sci-Fi',bg:'135deg,#051020,#0a3050',ico:'⚡'},
-  {t:'The Bear',s:'T3',g:'Drama',bg:'135deg,#201000,#503000',ico:'🍳'},
-  {t:'Shogun',s:'T1',g:'Histórico',bg:'135deg,#100000,#300000',ico:'⛩️'},
-  {t:'Fallout',s:'T1',g:'Sci-Fi',bg:'135deg,#102000,#204000',ico:'☢️'},
-  {t:'True Detective',s:'T4',g:'Crime',bg:'135deg,#051015,#0a2030',ico:'🔍'},
-  {t:'Severance',s:'T2',g:'Thriller',bg:'135deg,#050515,#101030',ico:'🏢'},
-  {t:'The Penguin',s:'T1',g:'Crime',bg:'135deg,#030508,#080f1f',ico:'🐧'},
-  {t:'Yellowstone',s:'T5',g:'Drama',bg:'135deg,#0a0800,#1e1400',ico:'🤠'},
-  {t:'Invincible',s:'T3',g:'Animação',bg:'135deg,#1a0010,#3a0040',ico:'💪'},
+var series=[
+  {t:'The Last of Us',s:'T2',g:'Drama',bg:'135deg,#0a2010,#1a5030'},
+  {t:'House of Dragon',s:'T2',g:'Fantasia',bg:'135deg,#200a00,#500000'},
+  {t:'Succession',s:'T4',g:'Drama',bg:'135deg,#100a20,#301060'},
+  {t:'Andor',s:'T2',g:'Sci-Fi',bg:'135deg,#051020,#0a3050'},
+  {t:'The Bear',s:'T3',g:'Drama',bg:'135deg,#201000,#503000'},
+  {t:'Shogun',s:'T1',g:'Historico',bg:'135deg,#100000,#300000'},
+  {t:'Fallout',s:'T1',g:'Sci-Fi',bg:'135deg,#102000,#204000'},
+  {t:'True Detective',s:'T4',g:'Crime',bg:'135deg,#051015,#0a2030'},
+  {t:'Severance',s:'T2',g:'Thriller',bg:'135deg,#050515,#101030'},
+  {t:'The Penguin',s:'T1',g:'Crime',bg:'135deg,#030508,#080f1f'},
+  {t:'Yellowstone',s:'T5',g:'Drama',bg:'135deg,#0a0800,#1e1400'},
+  {t:'Invincible',s:'T3',g:'Animacao',bg:'135deg,#1a0010,#3a0040'}
 ];
-var sg = document.getElementById('seriesGrid');
-for (var i = 0; i < series.length; i++) {
-  var s = series[i];
-  sg.innerHTML += '<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+s.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+s.ico+'</span><div class="play-overlay">▶</div><span class="vod-label new">'+s.s+'</span></div><div class="vod-info"><div class="vod-title">'+s.t+'</div><div class="vod-meta">'+s.s+' • '+s.g+'</div></div></div>';
-}
+var sicons=['🍄','🐉','💰','⚡','🍳','⛩️','☢️','🔍','🏢','🐧','🤠','💪'];
+var sg=document.getElementById('seriesGrid');
+for(var i=0;i<series.length;i++){var s=series[i];sg.innerHTML+='<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+s.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+sicons[i]+'</span><div class="play-overlay">&#9654;</div><span class="vod-label new">'+s.s+'</span></div><div class="vod-info"><div class="vod-title">'+s.t+'</div><div class="vod-meta">'+s.s+' &bull; '+s.g+'</div></div></div>';}
 
-var catchups = [
-  {ch:'Globo HD',prog:'Jornal Nacional',time:'20h - 21h20',fill:85},
-  {ch:'Globo HD',prog:'Fantástico',time:'20h35 - 22h45',fill:100},
-  {ch:'SporTV 2',prog:'Futebol: Flamengo x Palmeiras',time:'18h - 20h15',fill:100},
-  {ch:'Record HD',prog:'Balanço Geral',time:'12h - 14h',fill:100},
-  {ch:'CNN Brasil',prog:'Primetime',time:'21h - 22h',fill:100},
-  {ch:'Band HD',prog:'Jogo Aberto',time:'11h - 12h30',fill:100},
-  {ch:'ESPN HD',prog:'SportsCenter',time:'22h - 23h',fill:60},
-  {ch:'Discovery',prog:'Caçadores de Mitos: Especial',time:'21h - 22h30',fill:100},
+var catchups=[
+  {ch:'Globo HD',prog:'Jornal Nacional',time:'20h-21h20',fill:85},
+  {ch:'Globo HD',prog:'Fantastico',time:'20h35-22h45',fill:100},
+  {ch:'SporTV 2',prog:'Futebol AO VIVO',time:'18h-20h15',fill:100},
+  {ch:'Record HD',prog:'Balanco Geral',time:'12h-14h',fill:100},
+  {ch:'CNN Brasil',prog:'Primetime',time:'21h-22h',fill:100},
+  {ch:'Band HD',prog:'Jogo Aberto',time:'11h-12h30',fill:100},
+  {ch:'ESPN HD',prog:'SportsCenter',time:'22h-23h',fill:60},
+  {ch:'Discovery',prog:'Cacadores de Mitos',time:'21h-22h30',fill:100}
 ];
-var cg = document.getElementById('catchupGrid');
-for (var i = 0; i < catchups.length; i++) {
-  var c = catchups[i];
-  cg.innerHTML += '<div class="cu-card"><div class="cu-ch">'+c.ch+'</div><div class="cu-prog">'+c.prog+'</div><div class="cu-time">🕐 '+c.time+'</div><div class="cu-bar"><div class="cu-fill" style="width:'+c.fill+'%"></div></div></div>';
-}
+var cg=document.getElementById('catchupGrid');
+for(var i=0;i<catchups.length;i++){var c=catchups[i];cg.innerHTML+='<div class="cu-card"><div class="cu-ch">'+c.ch+'</div><div class="cu-prog">'+c.prog+'</div><div class="cu-time">'+c.time+'</div><div class="cu-bar"><div class="cu-fill" style="width:'+c.fill+'%"></div></div></div>';}
 
-// ---------- HELPERS ----------
-function escH(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escA(s) {
-  return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function channelIcon(group) {
-  var g = (group||'').toLowerCase();
-  if (g.indexOf('sport')!==-1||g.indexOf('esport')!==-1||g.indexOf('futebol')!==-1) return '⚽';
-  if (g.indexOf('news')!==-1||g.indexOf('notícia')!==-1||g.indexOf('noticias')!==-1) return '📰';
-  if (g.indexOf('kids')!==-1||g.indexOf('infantil')!==-1) return '🧒';
-  if (g.indexOf('filme')!==-1||g.indexOf('movie')!==-1||g.indexOf('cinema')!==-1) return '🎬';
-  if (g.indexOf('série')!==-1||g.indexOf('serie')!==-1||g.indexOf('series')!==-1) return '📺';
-  if (g.indexOf('músic')!==-1||g.indexOf('music')!==-1) return '🎵';
-  if (g.indexOf('document')!==-1) return '🌍';
+// HELPERS
+function hesc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function aesc(s){ return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function iconeCh(g){
+  g=(g||'').toLowerCase();
+  if(g.indexOf('sport')>=0||g.indexOf('esport')>=0||g.indexOf('futebol')>=0) return '⚽';
+  if(g.indexOf('news')>=0||g.indexOf('notic')>=0) return '📰';
+  if(g.indexOf('kids')>=0||g.indexOf('infan')>=0) return '🧒';
+  if(g.indexOf('film')>=0||g.indexOf('movie')>=0||g.indexOf('cinema')>=0) return '🎬';
+  if(g.indexOf('seri')>=0) return '📺';
+  if(g.indexOf('music')>=0||g.indexOf('musica')>=0) return '🎵';
+  if(g.indexOf('doc')>=0) return '🌍';
   return '📡';
 }
 
-// ---------- CARREGAR HLS.js ----------
-(function() {
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
-  document.head.appendChild(s);
-})();
+// HLS.js
+(function(){ var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js'; document.head.appendChild(s); })();
 
-// Iniciar
-init();
+// INIT
+carregarConf('pjplay_m3u', function(url) {
+  var el = document.querySelector('.setting-input[data-key="m3u"]');
+  if (el && url) el.value = url;
+});
+carregarDB(function(saved) {
+  if (!saved.length) return;
+  _ch = saved; _fil = saved.slice();
+  buildUI();
+  status('ok', saved.length + ' canais restaurados.');
+  setTimeout(function(){ var el=document.getElementById('m3uStatus'); if(el) el.style.display='none'; }, 2500);
+  infoCanais(saved);
+});
 </script>
 </body>
 </html>
