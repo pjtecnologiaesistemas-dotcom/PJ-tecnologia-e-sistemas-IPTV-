@@ -1006,21 +1006,66 @@ body::after{
         <div class="settings-nav-item">ℹ️ Sobre</div>
       </div>
       <div class="settings-content">
+
+        <!-- MÉTODO 1: Colar conteúdo -->
         <div class="setting-group">
-          <h3>Informações da Conta</h3>
-          <div class="setting-row">
-            <div><div class="setting-label">URL do Servidor M3U</div><div class="setting-desc">Endereço da sua lista de canais</div></div>
-            <input class="setting-input" type="text" placeholder="http://servidor.com/lista.m3u">
-          </div>
-          <div class="setting-row">
-            <div><div class="setting-label">Usuário</div><div class="setting-desc">Login de acesso ao servidor</div></div>
-            <input class="setting-input" type="text" placeholder="usuario@email.com">
-          </div>
-          <div class="setting-row">
-            <div><div class="setting-label">Senha</div><div class="setting-desc">Senha do servidor IPTV</div></div>
-            <input class="setting-input" type="password" placeholder="••••••••">
+          <h3>📋 Colar Conteúdo da Lista (Recomendado)</h3>
+          <div style="background:rgba(0,200,248,.05);border:1px solid rgba(0,200,248,.12);border-radius:10px;padding:14px;margin-bottom:12px;">
+            <div style="font-size:.78rem;color:var(--text-dim);line-height:1.7;margin-bottom:10px;">
+              ⚠️ Servidores IPTV bloqueiam o navegador por CORS. A solução mais confiável é:<br>
+              1. Abra a URL da sua lista no <strong style="color:var(--silver);">navegador</strong> diretamente<br>
+              2. Selecione tudo (<kbd style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;">Ctrl+A</kbd>), copie (<kbd style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;">Ctrl+C</kbd>)<br>
+              3. Cole aqui abaixo e clique em <strong style="color:var(--cyan);">Carregar Lista</strong>
+            </div>
+            <textarea id="m3uPasteArea" placeholder="#EXTM3U&#10;#EXTINF:-1 group-title=&quot;Esportes&quot;,ESPN HD&#10;http://..." style="width:100%;height:120px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white);font-family:monospace;font-size:.75rem;resize:vertical;outline:none;"></textarea>
+            <button onclick="loadFromPaste()" style="margin-top:8px;padding:9px 20px;border-radius:8px;background:linear-gradient(135deg,var(--blue2),#051a40);border:1px solid rgba(0,200,248,.4);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:1.5px;cursor:pointer;">
+              📋 Carregar Lista Colada
+            </button>
           </div>
         </div>
+
+        <!-- MÉTODO 2: Arquivo local -->
+        <div class="setting-group">
+          <h3>📂 Carregar Arquivo .m3u do Dispositivo</h3>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;padding:9px 20px;border-radius:8px;background:rgba(0,200,248,.08);border:1px solid var(--border);color:var(--cyan);font-size:.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
+              📂 Escolher arquivo .m3u / .m3u8
+              <input type="file" accept=".m3u,.m3u8,.txt" id="m3uFileInput" style="display:none;">
+            </label>
+            <span id="fileNameLabel" style="font-size:.78rem;color:var(--text-dim);">Nenhum arquivo selecionado</span>
+          </div>
+        </div>
+
+        <!-- MÉTODO 3: URL com proxies -->
+        <div class="setting-group">
+          <h3>🌐 Carregar via URL (tenta múltiplos proxies)</h3>
+          <div class="setting-row" style="flex-wrap:wrap;gap:8px;">
+            <div style="flex:1;min-width:200px;">
+              <div class="setting-label">URL da Lista M3U</div>
+              <div class="setting-desc">Pode falhar por CORS — use os métodos acima se der erro</div>
+            </div>
+            <input class="setting-input" data-key="m3u" type="text" placeholder="http://servidor.com/lista.m3u" style="width:100%;margin-top:8px;">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button onclick="handleLoadBtn()" style="padding:9px 20px;border-radius:8px;background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.3);color:var(--cyan2);font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
+              📡 Tentar carregar URL
+            </button>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;color:var(--text-dim);line-height:1.6;">
+            Proxies usados em sequência: direto → corsproxy.io → allorigins.win → thingproxy.freeboard.io
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <div id="m3uStatus" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:.83rem;letter-spacing:.3px;"></div>
+
+        <!-- CANAIS CARREGADOS -->
+        <div id="channelsLoaded" style="display:none;" class="setting-group">
+          <h3>✅ Lista Carregada</h3>
+          <div id="channelsInfo" style="font-size:.85rem;color:var(--cyan);letter-spacing:.5px;"></div>
+        </div>
+
+        <!-- PREFERÊNCIAS -->
         <div class="setting-group">
           <h3>Preferências de Reprodução</h3>
           <div class="setting-row">
@@ -1040,17 +1085,19 @@ body::after{
             <div class="toggle on" onclick="this.classList.toggle('on')"></div>
           </div>
         </div>
+
         <div class="setting-group">
           <h3>Sobre o Aplicativo</h3>
           <div class="setting-row">
             <div class="setting-label">Versão</div>
-            <div style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.8rem;">PJ Play v1.0.0</div>
+            <div style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.8rem;">PJ Play v1.1.0</div>
           </div>
           <div class="setting-row">
             <div class="setting-label">Desenvolvido por</div>
             <div style="color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;">PJ Tecnologia e Sistemas</div>
           </div>
         </div>
+
         <button class="btn-save">💾 Salvar Configurações</button>
       </div>
     </div>
@@ -1058,12 +1105,11 @@ body::after{
 
 </div><!-- /main -->
 </div><!-- /app -->
-
 <script>
 // ══════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════
-let allChannels = [];      // parsed from M3U
+let allChannels = [];
 let currentChannel = null;
 let currentPlayer = null;
 
@@ -1092,29 +1138,18 @@ function parseM3U(text) {
   const lines = text.split(/\r?\n/);
   const channels = [];
   let current = null;
-
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
-
     if (line.startsWith('#EXTINF:')) {
       current = { name: '', group: 'Geral', logo: '', url: '' };
-
-      // Name (after last comma)
       const commaIdx = line.lastIndexOf(',');
       if (commaIdx !== -1) current.name = line.slice(commaIdx + 1).trim();
-
-      // Attributes
       const groupMatch = line.match(/group-title="([^"]*)"/i);
       if (groupMatch) current.group = groupMatch[1].trim() || 'Geral';
-
       const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
       if (logoMatch) current.logo = logoMatch[1].trim();
-
-      const nameMatch = line.match(/tvg-name="([^"]*)"/i);
-      if (nameMatch && !current.name) current.name = nameMatch[1].trim();
-
-    } else if (line.startsWith('http') || line.startsWith('rtmp') || line.startsWith('rtsp')) {
+    } else if (/^https?:\/\/|^rtmp|^rtsp/.test(line)) {
       if (current) {
         current.url = line;
         if (current.name) channels.push(current);
@@ -1126,271 +1161,215 @@ function parseM3U(text) {
 }
 
 // ══════════════════════════════════════
-//  LOAD M3U (URL or File)
+//  LOAD METHODS
 // ══════════════════════════════════════
-async function loadM3UFromURL(url) {
-  showM3UStatus('loading', '⏳ Carregando lista...');
-  try {
-    // Try direct fetch first; if CORS blocks, use a proxy
-    let text;
+
+// 1. Paste
+function loadFromPaste() {
+  const text = document.getElementById('m3uPasteArea').value.trim();
+  if (!text) { showM3UStatus('error', '❌ Cole o conteúdo da lista no campo acima.'); return; }
+  if (!text.includes('#EXTINF') && !text.includes('#EXTM3U')) {
+    showM3UStatus('error', '❌ Conteúdo não parece ser M3U válido. Verifique se copiou tudo.');
+    return;
+  }
+  processM3UText(text);
+}
+
+// 2. File
+document.getElementById('m3uFileInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('fileNameLabel').textContent = file.name;
+  showM3UStatus('loading', '⏳ Lendo arquivo...');
+  const reader = new FileReader();
+  reader.onload = e => processM3UText(e.target.result);
+  reader.onerror = () => showM3UStatus('error', '❌ Erro ao ler o arquivo.');
+  reader.readAsText(file);
+});
+
+// 3. URL with multi-proxy fallback
+const PROXIES = [
+  url => url,
+  url => 'https://corsproxy.io/?' + encodeURIComponent(url),
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+  url => 'https://thingproxy.freeboard.io/fetch/' + url,
+];
+
+async function handleLoadBtn() {
+  const urlEl = document.querySelector('.setting-input[data-key="m3u"]');
+  const url = urlEl ? urlEl.value.trim() : '';
+  if (!url) { showM3UStatus('error', '❌ Insira a URL da lista M3U primeiro.'); return; }
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxied = PROXIES[i](url);
+    showM3UStatus('loading', '⏳ Tentativa ' + (i+1) + ' de ' + PROXIES.length + '...');
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      const res = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      text = await res.text();
-    } catch (corsErr) {
-      // Try CORS proxy as fallback
-      const proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
-      const res2 = await fetch(proxy, { signal: AbortSignal.timeout(20000) });
-      if (!res2.ok) throw new Error('HTTP ' + res2.status);
-      text = await res2.text();
+      const text = await res.text();
+      if (text.includes('#EXTINF') || text.includes('#EXTM3U')) {
+        processM3UText(text);
+        return;
+      }
+      throw new Error('Resposta inválida');
+    } catch (e) {
+      if (i === PROXIES.length - 1) {
+        showM3UStatus('error',
+          '❌ Todos os proxies falharam (403/CORS).<br>' +
+          '👉 <strong>Solução:</strong> Abra a URL no navegador → Ctrl+A → Ctrl+C → cole no campo "Colar Conteúdo" acima.'
+        );
+      }
     }
-
-    if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
-      throw new Error('Arquivo não parece ser uma lista M3U válida');
-    }
-
-    const channels = parseM3U(text);
-    if (channels.length === 0) throw new Error('Nenhum canal encontrado na lista');
-
-    allChannels = channels;
-    saveSettings();
-    applyChannelsToUI();
-    showM3UStatus('ok', `✅ ${channels.length} canais carregados!`);
-  } catch (err) {
-    showM3UStatus('error', '❌ Erro: ' + err.message);
   }
 }
 
-function loadM3UFromFile(file) {
-  showM3UStatus('loading', '⏳ Lendo arquivo...');
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
-      showM3UStatus('error', '❌ Arquivo inválido. Use um arquivo .m3u ou .m3u8');
-      return;
-    }
-    const channels = parseM3U(text);
-    if (channels.length === 0) {
-      showM3UStatus('error', '❌ Nenhum canal encontrado no arquivo');
-      return;
-    }
-    allChannels = channels;
-    saveSettings();
-    applyChannelsToUI();
-    showM3UStatus('ok', `✅ ${channels.length} canais carregados!`);
-  };
-  reader.onerror = () => showM3UStatus('error', '❌ Erro ao ler o arquivo');
-  reader.readAsText(file);
+// ── Process text ──
+function processM3UText(text) {
+  const channels = parseM3U(text);
+  if (channels.length === 0) {
+    showM3UStatus('error', '❌ Nenhum canal encontrado. Verifique se a lista está completa.');
+    return;
+  }
+  allChannels = channels;
+  try { localStorage.setItem('pjplay_channels', JSON.stringify(channels.slice(0, 500))); } catch(e){}
+  applyChannelsToUI();
+  showM3UStatus('ok', '✅ ' + channels.length + ' canais carregados com sucesso!');
+  const grps = [...new Set(channels.map(c => c.group))];
+  const el = document.getElementById('channelsLoaded');
+  if (el) el.style.display = 'block';
+  const info = document.getElementById('channelsInfo');
+  if (info) info.innerHTML = '<strong style="font-size:1.1rem;">' + channels.length + '</strong> canais em <strong>' + grps.length + '</strong> grupos · ' +
+    grps.slice(0,6).map(g => '<span style="background:rgba(0,200,248,.1);border:1px solid rgba(0,200,248,.2);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;display:inline-block;">' + escHtml(g) + '</span>').join('') +
+    (grps.length > 6 ? '<span style="font-size:.75rem;color:var(--text-dim);"> +' + (grps.length-6) + ' mais</span>' : '');
 }
 
 // ══════════════════════════════════════
-//  APPLY CHANNELS TO UI
+//  APPLY TO LIVE TV UI
 // ══════════════════════════════════════
 function applyChannelsToUI() {
-  if (allChannels.length === 0) return;
-
-  // Build category list
-  const groups = ['Todos', ...new Set(allChannels.map(c => c.group))].slice(0, 12);
-
-  // Render category tabs
+  if (!allChannels.length) return;
+  const groups = ['Todos', ...new Set(allChannels.map(c => c.group))].slice(0, 14);
   const catTabsEl = document.querySelector('.cat-tabs');
-  catTabsEl.innerHTML = groups.map((g, i) =>
-    `<div class="cat-tab${i===0?' active':''}" data-group="${g}" onclick="filterChannels(this,'${g.replace(/'/g,"\\'")}')">
-      ${g.length > 10 ? g.slice(0,10)+'…' : g}
-    </div>`
-  ).join('');
-
+  catTabsEl.innerHTML = groups.map(function(g, i) {
+    return '<div class="cat-tab' + (i===0?' active':'') + '" onclick="filterChannels(this,\'' + g.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' + (g.length > 10 ? g.slice(0,10)+'…' : g) + '</div>';
+  }).join('');
   renderChannelList(allChannels);
-
-  // Update stats
-  document.querySelectorAll('.stat-info .val')[0].textContent = allChannels.length;
+  const statVal = document.querySelector('.stat-info .val');
+  if (statVal) statVal.textContent = allChannels.length;
 }
 
 function renderChannelList(channels) {
   const listEl = document.querySelector('.channel-list');
-  if (channels.length === 0) {
+  if (!channels.length) {
     listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:.8rem;">Nenhum canal encontrado</div>';
     return;
   }
-
-  listEl.innerHTML = channels.slice(0, 300).map((ch, i) => {
+  listEl.innerHTML = channels.slice(0, 300).map(function(ch, i) {
     const ico = getChannelIcon(ch.group);
-    return `<div class="ch-item" onclick="selectChannel(this,'${esc(ch.name)}','${esc(ch.url)}','${esc(ch.group)}')" data-url="${esc(ch.url)}" data-name="${esc(ch.name)}">
-      <div class="ch-num">${String(i+1).padStart(2,'0')}</div>
-      <div class="ch-logo">${ch.logo ? `<img src="${ch.logo}" onerror="this.parentNode.textContent='${ico}'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">` : ico}</div>
-      <div class="ch-details">
-        <div class="ch-name">${escHtml(ch.name)}</div>
-        <div class="ch-prog">${escHtml(ch.group)}</div>
-      </div>
-      <div class="ch-live"></div>
-    </div>`;
+    const logoHtml = ch.logo
+      ? '<img src="' + ch.logo + '" onerror="this.parentNode.innerHTML=\'' + ico + '\'" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">'
+      : ico;
+    return '<div class="ch-item" onclick="selectChannel(this,\'' + esc(ch.name) + '\',\'' + esc(ch.url) + '\',\'' + esc(ch.group) + '\')" data-url="' + esc(ch.url) + '">'
+      + '<div class="ch-num">' + String(i+1).padStart(2,'0') + '</div>'
+      + '<div class="ch-logo">' + logoHtml + '</div>'
+      + '<div class="ch-details"><div class="ch-name">' + escHtml(ch.name) + '</div><div class="ch-prog">' + escHtml(ch.group) + '</div></div>'
+      + '<div class="ch-live"></div>'
+      + '</div>';
   }).join('');
-
-  // Auto-select first channel
   const first = listEl.querySelector('.ch-item');
   if (first) first.click();
 }
 
 function filterChannels(tabEl, group) {
-  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(function(t){ t.classList.remove('active'); });
   tabEl.classList.add('active');
-  const filtered = group === 'Todos' ? allChannels : allChannels.filter(c => c.group === group);
-  renderChannelList(filtered);
+  renderChannelList(group === 'Todos' ? allChannels : allChannels.filter(function(c){ return c.group === group; }));
 }
 
-// ── Channel search ──
 document.querySelector('.sidebar-search input').addEventListener('input', function() {
   const q = this.value.toLowerCase().trim();
   if (!q) { renderChannelList(allChannels); return; }
-  const filtered = allChannels.filter(c => c.name.toLowerCase().includes(q) || c.group.toLowerCase().includes(q));
-  renderChannelList(filtered);
+  renderChannelList(allChannels.filter(function(c){ return c.name.toLowerCase().includes(q) || c.group.toLowerCase().includes(q); }));
 });
 
-// ── Select & play channel ──
+// ══════════════════════════════════════
+//  PLAYER
+// ══════════════════════════════════════
 function selectChannel(el, name, url, group) {
-  document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.ch-item').forEach(function(i){ i.classList.remove('active'); });
   el.classList.add('active');
   document.getElementById('playerChName').textContent = name;
-  document.getElementById('playerProg').textContent = (group || 'Ao Vivo') + ' • Ao Vivo';
+  document.getElementById('playerProg').textContent = (group || '') + ' • Ao Vivo';
   playStream(url, name);
 }
 
 function playStream(url, name) {
   const screen = document.querySelector('.player-screen');
-  currentChannel = { url, name };
-
-  // Remove previous player
-  const old = screen.querySelector('video');
-  if (old) old.remove();
-  const oldHls = screen.querySelector('.hls-info');
-  if (oldHls) oldHls.remove();
-
+  if (currentPlayer) { try { currentPlayer.destroy(); } catch(e){} currentPlayer = null; }
+  screen.querySelectorAll('video,.player-err').forEach(function(e){ e.remove(); });
   if (!url) return;
-
-  // Create video element
   const video = document.createElement('video');
   video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:10;';
   video.controls = true;
   video.autoplay = true;
-  video.muted = false;
-
-  const isHLS = url.includes('.m3u8') || url.includes('.m3u');
-
+  const isHLS = /\.m3u8?(\?|$)/i.test(url) || url.includes('type=m3u') || url.includes('output=mpegts');
   if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
     const hls = new Hls({ enableWorker: false, lowLatencyMode: true });
     hls.loadSource(url);
     hls.attachMedia(video);
-    hls.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) showPlayerError(screen, name, url);
-    });
+    hls.on(Hls.Events.ERROR, function(_, data){ if (data.fatal) showPlayerError(screen, name, url); });
     currentPlayer = hls;
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // Safari native HLS
-    video.src = url;
   } else {
-    // Direct stream (mp4, ts, etc.)
     video.src = url;
   }
-
-  video.onerror = () => showPlayerError(screen, name, url);
+  video.onerror = function(){ showPlayerError(screen, name, url); };
   screen.querySelector('.player-logo-bg').style.display = 'none';
   screen.appendChild(video);
 }
 
 function showPlayerError(screen, name, url) {
-  const old = screen.querySelector('video');
-  if (old) old.remove();
+  screen.querySelectorAll('video').forEach(function(e){ e.remove(); });
   screen.querySelector('.player-logo-bg').style.display = '';
-
-  const info = document.createElement('div');
-  info.className = 'hls-info';
-  info.style.cssText = 'position:absolute;bottom:12px;left:12px;right:12px;background:rgba(255,50,50,.15);border:1px solid rgba(255,80,80,.3);border-radius:8px;padding:10px 14px;font-size:.75rem;color:#ff8888;z-index:20;';
-  info.innerHTML = `⚠️ Não foi possível reproduzir "<strong>${escHtml(name)}</strong>".<br>O stream pode estar offline ou bloqueado por CORS neste navegador.<br><a href="${url}" target="_blank" style="color:var(--cyan);text-decoration:none;">Abrir stream diretamente ↗</a>`;
-  screen.appendChild(info);
+  const d = document.createElement('div');
+  d.className = 'player-err';
+  d.style.cssText = 'position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,50,50,.12);border:1px solid rgba(255,80,80,.25);border-radius:8px;padding:10px 14px;font-size:.74rem;color:#ff8888;z-index:20;line-height:1.6;';
+  d.innerHTML = '⚠️ Stream offline ou bloqueado: <strong>' + escHtml(name) + '</strong><br><a href="' + url + '" target="_blank" style="color:var(--cyan);">Abrir stream diretamente ↗</a>';
+  screen.appendChild(d);
 }
 
 // ══════════════════════════════════════
-//  SETTINGS SAVE
+//  SETTINGS
 // ══════════════════════════════════════
-function saveSettings() {
-  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
-  const user = document.querySelector('.setting-input[data-key="user"]').value.trim();
-  const pass = document.querySelector('.setting-input[data-key="pass"]').value.trim();
-  localStorage.setItem('pjplay_m3u', url);
-  localStorage.setItem('pjplay_user', user);
-  localStorage.setItem('pjplay_pass', pass);
-  if (allChannels.length > 0) {
-    localStorage.setItem('pjplay_channels_count', allChannels.length);
-  }
+function showM3UStatus(type, msg) {
+  const el = document.getElementById('m3uStatus');
+  if (!el) return;
+  el.innerHTML = msg;
+  el.style.display = 'block';
+  el.style.background = type === 'ok' ? 'rgba(0,200,248,.08)' : type === 'error' ? 'rgba(255,80,80,.1)' : 'rgba(240,165,0,.08)';
+  el.style.border = '1px solid ' + (type === 'ok' ? 'rgba(0,200,248,.2)' : type === 'error' ? 'rgba(255,80,80,.2)' : 'rgba(240,165,0,.2)');
+  el.style.color = type === 'ok' ? 'var(--cyan)' : type === 'error' ? '#ff8888' : 'var(--accent)';
 }
+
+document.querySelector('.btn-save').addEventListener('click', function() {
+  const urlEl = document.querySelector('.setting-input[data-key="m3u"]');
+  if (urlEl) localStorage.setItem('pjplay_m3u', urlEl.value.trim());
+  showM3UStatus('ok', '✅ Configurações salvas!');
+});
 
 function loadSettings() {
   const url = localStorage.getItem('pjplay_m3u') || '';
-  const user = localStorage.getItem('pjplay_user') || '';
-  const pass = localStorage.getItem('pjplay_pass') || '';
-  if (url) document.querySelector('.setting-input[data-key="m3u"]').value = url;
-  if (user) document.querySelector('.setting-input[data-key="user"]').value = user;
-  if (pass) document.querySelector('.setting-input[data-key="pass"]').value = pass;
+  const urlEl = document.querySelector('.setting-input[data-key="m3u"]');
+  if (urlEl && url) urlEl.value = url;
+  try {
+    const cached = localStorage.getItem('pjplay_channels');
+    if (cached) {
+      const ch = JSON.parse(cached);
+      if (ch && ch.length) { allChannels = ch; applyChannelsToUI(); }
+    }
+  } catch(e){}
 }
 
-function showM3UStatus(type, msg) {
-  const el = document.getElementById('m3uStatus');
-  el.textContent = msg;
-  el.style.color = type === 'ok' ? 'var(--cyan)' : type === 'error' ? '#ff6666' : 'var(--accent)';
-  el.style.display = 'block';
-}
-
-// ── Status element
-const statusEl = document.createElement('div');
-statusEl.id = 'm3uStatus';
-statusEl.style.cssText = 'display:none;margin-top:8px;font-size:.82rem;letter-spacing:.5px;';
-document.querySelector('.btn-save').insertAdjacentElement('afterend', statusEl);
-
-// ── Rewrite settings inputs with data-key ──
-document.querySelectorAll('.setting-input').forEach((inp, i) => {
-  if (i === 0) inp.setAttribute('data-key', 'm3u');
-  if (i === 1) inp.setAttribute('data-key', 'user');
-  if (i === 2) inp.setAttribute('data-key', 'pass');
-});
-
-// ── File input for local M3U ──
-const fileWrap = document.createElement('div');
-fileWrap.style.cssText = 'margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-fileWrap.innerHTML = `
-  <label style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(0,200,248,.08);border:1px solid var(--border);color:var(--cyan);font-size:.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
-    📂 Carregar arquivo .m3u
-    <input type="file" accept=".m3u,.m3u8,.txt" style="display:none;" id="m3uFileInput">
-  </label>
-  <button onclick="handleLoadBtn()" style="padding:8px 16px;border-radius:8px;background:rgba(0,200,248,.12);border:1px solid rgba(0,200,248,.3);color:var(--cyan2);font-size:.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;">
-    📡 Carregar URL
-  </button>`;
-document.querySelector('.btn-save').insertAdjacentElement('beforebegin', fileWrap);
-
-document.getElementById('m3uFileInput').addEventListener('change', function() {
-  if (this.files[0]) loadM3UFromFile(this.files[0]);
-});
-
-function handleLoadBtn() {
-  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
-  if (!url) { showM3UStatus('error', '❌ Insira a URL da lista M3U primeiro'); return; }
-  loadM3UFromURL(url);
-}
-
-// ── Save button ──
-document.querySelector('.btn-save').addEventListener('click', function() {
-  saveSettings();
-  const url = document.querySelector('.setting-input[data-key="m3u"]').value.trim();
-  if (url && allChannels.length === 0) {
-    loadM3UFromURL(url);
-  } else {
-    showM3UStatus('ok', '✅ Configurações salvas!');
-    setTimeout(() => { document.getElementById('m3uStatus').style.display='none'; }, 3000);
-  }
-});
-
-// ── Load HLS.js dynamically ──
-(function loadHLSjs() {
+// ── Load HLS.js ──
+(function(){
   const s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
   document.head.appendChild(s);
@@ -1399,10 +1378,10 @@ document.querySelector('.btn-save').addEventListener('click', function() {
 // ══════════════════════════════════════
 //  FILTER CHIPS (VOD)
 // ══════════════════════════════════════
-document.querySelectorAll('.vod-filters').forEach(cont => {
-  cont.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      cont.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+document.querySelectorAll('.vod-filters').forEach(function(cont) {
+  cont.querySelectorAll('.filter-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      cont.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('active'); });
       chip.classList.add('active');
     });
   });
@@ -1412,25 +1391,25 @@ document.querySelectorAll('.vod-filters').forEach(cont => {
 //  HELPERS
 // ══════════════════════════════════════
 function esc(str) {
-  return (str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return (str||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 }
 function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function getChannelIcon(group) {
   const g = (group||'').toLowerCase();
-  if (g.includes('esporte') || g.includes('sport') || g.includes('futebol')) return '⚽';
-  if (g.includes('news') || g.includes('notícia') || g.includes('jornalismo')) return '📰';
-  if (g.includes('kids') || g.includes('infantil') || g.includes('criança')) return '🧒';
-  if (g.includes('filme') || g.includes('movie') || g.includes('cinema')) return '🎬';
-  if (g.includes('série') || g.includes('series')) return '📺';
-  if (g.includes('música') || g.includes('music')) return '🎵';
+  if (g.includes('esport')||g.includes('sport')||g.includes('futebol')) return '⚽';
+  if (g.includes('news')||g.includes('notícia')||g.includes('noticias')||g.includes('jornali')) return '📰';
+  if (g.includes('kids')||g.includes('infantil')||g.includes('criança')) return '🧒';
+  if (g.includes('filme')||g.includes('movie')||g.includes('cinema')) return '🎬';
+  if (g.includes('série')||g.includes('series')||g.includes('serie')) return '📺';
+  if (g.includes('música')||g.includes('music')||g.includes('musica')) return '🎵';
   if (g.includes('document')) return '🌍';
   return '📡';
 }
 
 // ══════════════════════════════════════
-//  GENERATE STATIC VOD (Movies/Series)
+//  STATIC VOD
 // ══════════════════════════════════════
 const movies = [
   {t:'Duna: Parte 2',y:'2024',d:'2h46m',g:'Sci-Fi',bg:'135deg,#1a0a30,#3a1060',ico:'🪐',q:'4K'},
@@ -1447,18 +1426,8 @@ const movies = [
   {t:'Fast X',y:'2023',d:'2h21m',g:'Ação',bg:'135deg,#250505,#600010',ico:'🏎️',q:'HD'},
 ];
 const moviesGrid = document.getElementById('moviesGrid');
-movies.forEach(m => {
-  moviesGrid.innerHTML += `<div class="vod-card">
-    <div class="vod-thumb" style="background:linear-gradient(${m.bg})">
-      <span style="position:relative;z-index:1;font-size:2.5rem">${m.ico}</span>
-      <div class="play-overlay">▶</div>
-      <span class="vod-label new">${m.q}</span>
-    </div>
-    <div class="vod-info">
-      <div class="vod-title">${m.t}</div>
-      <div class="vod-meta">${m.y} • ${m.d} • ${m.g}</div>
-    </div>
-  </div>`;
+movies.forEach(function(m) {
+  moviesGrid.innerHTML += '<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+m.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+m.ico+'</span><div class="play-overlay">▶</div><span class="vod-label new">'+m.q+'</span></div><div class="vod-info"><div class="vod-title">'+m.t+'</div><div class="vod-meta">'+m.y+' • '+m.d+' • '+m.g+'</div></div></div>';
 });
 
 const series = [
@@ -1476,18 +1445,8 @@ const series = [
   {t:'Invincible',s:'T3',g:'Animação',bg:'135deg,#1a0010,#3a0040',ico:'💪'},
 ];
 const seriesGrid = document.getElementById('seriesGrid');
-series.forEach(s => {
-  seriesGrid.innerHTML += `<div class="vod-card">
-    <div class="vod-thumb" style="background:linear-gradient(${s.bg})">
-      <span style="position:relative;z-index:1;font-size:2.5rem">${s.ico}</span>
-      <div class="play-overlay">▶</div>
-      <span class="vod-label new">${s.s}</span>
-    </div>
-    <div class="vod-info">
-      <div class="vod-title">${s.t}</div>
-      <div class="vod-meta">${s.s} • ${s.g}</div>
-    </div>
-  </div>`;
+series.forEach(function(s) {
+  seriesGrid.innerHTML += '<div class="vod-card"><div class="vod-thumb" style="background:linear-gradient('+s.bg+')"><span style="position:relative;z-index:1;font-size:2.5rem">'+s.ico+'</span><div class="play-overlay">▶</div><span class="vod-label new">'+s.s+'</span></div><div class="vod-info"><div class="vod-title">'+s.t+'</div><div class="vod-meta">'+s.s+' • '+s.g+'</div></div></div>';
 });
 
 const catchups = [
@@ -1501,13 +1460,8 @@ const catchups = [
   {ch:'Discovery',prog:'Caçadores de Mitos: Especial',time:'21h - 22h30',fill:100},
 ];
 const catchupGrid = document.getElementById('catchupGrid');
-catchups.forEach(c => {
-  catchupGrid.innerHTML += `<div class="cu-card">
-    <div class="cu-ch">${c.ch}</div>
-    <div class="cu-prog">${c.prog}</div>
-    <div class="cu-time">🕐 ${c.time}</div>
-    <div class="cu-bar"><div class="cu-fill" style="width:${c.fill}%"></div></div>
-  </div>`;
+catchups.forEach(function(c) {
+  catchupGrid.innerHTML += '<div class="cu-card"><div class="cu-ch">'+c.ch+'</div><div class="cu-prog">'+c.prog+'</div><div class="cu-time">🕐 '+c.time+'</div><div class="cu-bar"><div class="cu-fill" style="width:'+c.fill+'%"></div></div></div>';
 });
 
 // ── Init ──
